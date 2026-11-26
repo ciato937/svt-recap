@@ -324,6 +324,38 @@ function coordinatesForEvent(item){
   const countryName=country(item.country)?.[1]||'';
   return findCoordinate(`${item.country} ${countryName}`,VENUE_COORDS.country);
 }
+function calcTravelDetails(attendedEvents,origin){
+  let domesticKm=0,intlKm=0,intlTrips=0,calculatedEvents=0;
+  let farthest={name:'-',km:0},closest={name:'-',km:Infinity};
+  attendedEvents.forEach(event=>{
+    const venue=coordinatesForEvent(event);
+    if(!venue)return;
+    const oneWay=distanceInKm(origin,venue),roundTrip=oneWay*2;
+    const name=venue.label||event.venue;
+    calculatedEvents++;
+    if(event.country==='KR')domesticKm+=roundTrip;
+    else{intlKm+=roundTrip;intlTrips++}
+    if(oneWay>farthest.km)farthest={name,km:oneWay};
+    if(oneWay<closest.km)closest={name,km:oneWay};
+  });
+  const totalKm=domesticKm+intlKm;
+  const domesticMins=Math.round(domesticKm/55*60);
+  const flightMins=Math.round(intlKm/780*60);
+  const formatTime=mins=>`${Math.floor(mins/60)?`${Math.floor(mins/60)}시간 `:''}${mins%60}분`;
+  return{
+    totalKm,domesticKm,intlKm,
+    domesticRatio:totalKm?Math.round(domesticKm/totalKm*100):0,
+    intlRatio:totalKm?Math.round(intlKm/totalKm*100):0,
+    totalTravelTime:formatTime(domesticMins+flightMins),
+    flightTime:formatTime(flightMins),
+    estimatedMiles:Math.round(intlKm*0.621371),
+    flightTakeoffs:intlTrips*2,
+    avgKmPerEvent:calculatedEvents?Math.round(totalKm/calculatedEvents):0,
+    farthest,
+    closest:closest.km===Infinity?{name:'-',km:0}:closest,
+    calculatedEvents
+  };
+}
 function locationLabel(data,fallback){
   const address=data?.address||data||{};
   const city=address.city||address.town||address.village||address.locality||address.municipality||address.county||address.state||'';
@@ -358,14 +390,18 @@ function renderTravelSummary(){
   const results=locations.map(item=>({key:venueKey(item),coords:coordinatesForEvent(item)}));
   const resolved=new Map(results.map(result=>[result.key,result.coords]));
   const failures=results.filter(result=>!result.coords);
-  const totalRoundTrip=selected.reduce((total,item)=>{
-    const coords=resolved.get(venueKey(item));
-    return coords?total+distanceInKm(homeLocation,coords)*2:total;
-  },0);
   const calculated=selected.filter(item=>resolved.has(venueKey(item))&&resolved.get(venueKey(item))).length;
+  const details=calcTravelDetails(selected,homeLocation);
   const cityFallbacks=results.filter(result=>result.coords?.precision==='city').length;
   const countryFallbacks=results.filter(result=>result.coords?.precision==='country').length;
-  summary.textContent=`계산 완료: ${calculated}/${selected.length}개 일정 · 왕복 약 ${totalRoundTrip.toFixed(1)} km${failures.length?' (일부 제외)':''}`;
+  const detailLines=[
+    `계산 완료: ${calculated}/${selected.length}개 일정 · 왕복 약 ${details.totalKm.toFixed(1)} km${failures.length?' (일부 제외)':''}`,
+    `국내 ${details.domesticKm.toFixed(1)} km (${details.domesticRatio}%) · 해외 ${details.intlKm.toFixed(1)} km (${details.intlRatio}%)`,
+    `예상 이동 시간 ${details.totalTravelTime} · 비행 시간 ${details.flightTime} · 해외 왕복 비행 ${details.flightTakeoffs}회`,
+    `해외 이동 환산 ${details.estimatedMiles.toLocaleString('ko-KR')} mi · 공연당 평균 ${details.avgKmPerEvent} km`,
+    `가장 먼 공연 ${details.farthest.name} (${details.farthest.km.toFixed(1)} km) · 가장 가까운 공연 ${details.closest.name} (${details.closest.km.toFixed(1)} km)`
+  ];
+  summary.textContent=detailLines.join('\n');
   if(failures.length){
     const failedVenues=[...new Set(failures.map(item=>item.key.split('|')[1]))];
     $('routeStatusMsg').textContent=`내장 좌표를 찾지 못했습니다: ${failedVenues.join(', ')}`;
@@ -385,7 +421,6 @@ function renderReceipt(){
   $('total').textContent=money(total,'KRW');$('stickyTotal').textContent=money(total,'KRW');$('stickyCount').textContent=`선택한 공연 ${picked.length}회`;
   $('visitCount').textContent=`관람 ${picked.length}회 · 국가 ${new Set(picked.map(item=>item.country)).size}개`;
   $('selectedEvents').innerHTML=picked.length?picked.map(item=>`<div class="selected-line"><span>${escapeHtml(item.date.slice(5))} · ${escapeHtml(item.title)}</span><b>${money(asKrw(item.price,item.unit),'KRW')}</b></div>`).join(''):'<p>선택한 공연이 없습니다.</p>';
-  $('downloadTicketExpenses').disabled=!picked.length;
 }
 function render(){renderFilters();renderEvents();renderReceipt();persist();renderTravelSummary()}
 
@@ -428,32 +463,10 @@ function useCurrentGPSLocation(){
     else statusEl.textContent='현재 위치를 확인하지 못했습니다. 주소를 직접 입력해 주세요.';
   },{enableHighAccuracy:false,timeout:8000,maximumAge:60000});
 }
-function downloadTicketExpenses(){
-  const picked=events.filter(item=>item.selected);
-  if(!picked.length)return;
-  const total=picked.reduce((sum,item)=>sum+asKrw(item.price,item.unit),0);
-  const lines=[
-    '2026 SEVENTEEN 공연 티켓 지출 내역',
-    `선택 공연: ${picked.length}회`,
-    `총 지출 (KRW 환산): ${money(total,'KRW')}`,
-    '',
-    ...picked.flatMap((item,index)=>[
-      `${index+1}. ${item.date} | ${item.title}`,
-      `   장소: ${item.venue}`,
-      `   티켓 금액: ${money(item.price,item.unit)} (KRW 환산 ${money(asKrw(item.price,item.unit),'KRW')})`,
-      ''
-    ])
-  ];
-  const blob=new Blob(['\uFEFF',lines.join('\n')],{type:'text/plain;charset=utf-8'});
-  const url=URL.createObjectURL(blob),link=document.createElement('a');
-  link.href=url;link.download='seventeen-ticket-expenses-2026.txt';link.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
 loadTravelLocation();
 $('setHomeAddress').addEventListener('click',updateHomeFromAddress);
 $('currentGpsButton').addEventListener('click',useCurrentGPSLocation);
 $('homeAddressInput').addEventListener('keydown',event=>{if(event.key==='Enter')updateHomeFromAddress()});
-$('downloadTicketExpenses').addEventListener('click',downloadTicketExpenses);
 document.addEventListener('click',event=>{
   const target=event.target,countryButton=target.closest('[data-country]'),gradeButton=target.closest('[data-grade]');
   if(countryButton){const id=countryButton.dataset.country;state.countries.has(id)?state.countries.delete(id):state.countries.add(id);render()}
