@@ -201,7 +201,7 @@
       <section class="receipt-page page-members" aria-label="2페이지 함께한 멤버 및 월별 관람">
         <header class="editorial-heading editorial-heading-compact"><span class="editorial-word">MEMORY</span><div class="editorial-heading-row"><h3>함께한 멤버 · 월별 기록</h3><span>${rows.length}회 관람</span></div></header>
         <section class="most-met-member"><span class="editorial-label">( 가장 많이 만난 멤버 )</span><strong>${mostMet?.[1] ? `${escapeHtml(mostMet[0])} · ${mostMet[1]}회` : '아직 기록이 없습니다'}</strong></section>
-        <section class="member-list"><h4>함께한 멤버</h4><div>${members.map(([name, count]) => `<div class="member-row"><strong>${escapeHtml(name)}</strong><span>${count}<small>회</small></span></div>`).join('')}</div></section>
+        <section class="member-list"><h4>함께한 멤버</h4><div class="member-grid" style="--member-rows:${Math.ceil(members.length / 2)}">${members.map(([name, count]) => `<div class="member-row"><strong>${escapeHtml(name)}</strong><span>${count}<small>회</small></span></div>`).join('')}</div></section>
         <section class="monthly-list"><h4>월별 관람 · 지출</h4><div>${monthly.map(item => `<div class="monthly-editorial-row"><strong>${monthName(item.month)}</strong><span>${item.count}<small>회</small></span><b>${money(item.spend)}</b></div>`).join('') || '<p class="empty-editorial">선택한 공연이 없습니다.</p>'}</div></section>
         ${pageFooter('2/3')}
       </section>
@@ -353,20 +353,22 @@
 
     ctx.font = '800 28px sans-serif';
     ctx.fillText('함께한 멤버', left, 585);
-    const memberTop = 625, memberHeight = 32;
+    const memberTop = 625, memberHeight = 38, memberRows = Math.ceil(data.members.length / 2);
     data.members.forEach(([name, count], index) => {
-      const y = memberTop + index * memberHeight;
+      const column = Math.floor(index / memberRows), row = index % memberRows;
+      const cellLeft = left + column * (width / 2), cellWidth = width / 2;
+      const y = memberTop + row * memberHeight;
       ctx.fillStyle = '#231F20';
       ctx.font = '700 21px sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(name, left, y + 22);
+      ctx.fillText(name, cellLeft, y + 24);
       ctx.textAlign = 'right';
       ctx.font = '700 20px sans-serif';
-      ctx.fillText(`${count}회`, left + width, y + 22);
-      drawRule(ctx, left, y + memberHeight, width);
+      ctx.fillText(`${count}회`, cellLeft + cellWidth - 14, y + 24);
+      drawRule(ctx, cellLeft, y + memberHeight - 2, cellWidth - 14);
     });
 
-    const monthsTop = memberTop + data.members.length * memberHeight + 70;
+    const monthsTop = memberTop + memberRows * memberHeight + 70;
     ctx.textAlign = 'left';
     ctx.fillStyle = '#231F20';
     ctx.font = '800 28px sans-serif';
