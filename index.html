@@ -10,10 +10,11 @@
   <link rel="stylesheet" href="receipt-layout-overrides.css?v=1">
   <link rel="stylesheet" href="travel-location.css?v=4">
   <link rel="stylesheet" href="design-refresh.css?v=17">
+  <link rel="stylesheet" href="receipt-editorial.css?v=2">
   <script src="jp-ticket-options.js?v=1" defer></script>
   <script src="app.js?v=27" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
-  <script src="receipt-enhancements.js?v=13" defer></script>
+  <script src="receipt-enhancements.js?v=14" defer></script>
 </head>
 <body>
   <header>
@@ -44,38 +45,43 @@
         </section>
       </section>
       <aside id="receipt" class="panel receipt" hidden role="dialog" aria-modal="true" aria-labelledby="receiptTitle" tabindex="-1">
-        <div class="receipt-topline"><small>CARAT MEMORY · 2026</small><button class="receipt-close" type="button" aria-label="영수증 닫기">×</button></div>
-        <div class="receipt-mark" aria-hidden="true">✦</div>
-        <p class="receipt-kicker">YOUR CONCERT YEAR</p>
-        <h2 id="receiptTitle">공연 영수증</h2>
-        <div class="receipt-total"><span>총 지출 · KRW 환산</span><strong id="total">₩0</strong><small id="visitCount">관람 0회 · 국가 0개</small></div>
-        <section class="receipt-travel" aria-labelledby="travelTitle">
-          <h3 id="travelTitle">공연 이동 거리</h3>
-          <label for="homeAddressInput">출발지</label>
-          <div class="travel-controls">
-            <input id="homeAddressInput" type="text" placeholder="출발지 입력 (예: 서울 강남구, 부산 해운대구)">
-            <button id="setHomeAddress" type="button">주소 설정</button>
-            <button id="currentGpsButton" type="button">📍 현위치</button>
-          </div>
-          <p id="routeStatusMsg" role="status" aria-live="polite">출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.</p>
-          <details class="travel-details">
-            <summary><span>거리 계산 상세</span><span id="travelDistancePreview">계산 전</span></summary>
-            <div id="travelSummary" aria-live="polite"></div>
-            <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. 예상 시간은 국내 시속 55km, 해외 비행 시속 780km 기준입니다. 국내 시·구와 주요 도시 주소는 내장된 대표 좌표로 계산하며, 정확한 번지 좌표가 아닐 수 있습니다. 내장 목록에 없는 출발지 주소만 OpenStreetMap에서 검색합니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
-          </details>
-        </section>
-        <div class="receipt-divider"><span>✦</span></div>
-        <section class="monthly-summary" aria-labelledby="monthlySummaryTitle">
-          <h3 id="monthlySummaryTitle">월별 관람 · 지출</h3>
-          <div id="monthlySummary"></div>
-        </section>
-        <section class="receipt-selected" aria-labelledby="selectedEventsTitle">
-          <h3 id="selectedEventsTitle">함께한 공연</h3>
-          <div id="selectedEvents" class="receipt-events"></div>
-        </section>
-        <button id="saveReceiptImage" class="receipt-share" type="button">이미지로 저장</button>
+        <div class="receipt-toolbar"><h2 id="receiptTitle">공연 리캡 · 영수증</h2><button class="receipt-close" type="button" aria-label="영수증 닫기">×</button></div>
+        <div id="receiptPages" class="receipt-pages" aria-live="polite"></div>
+        <details class="receipt-tools">
+          <summary>이동 거리 설정 및 상세 계산</summary>
+          <section class="receipt-travel" aria-labelledby="travelTitle">
+            <h3 id="travelTitle">공연 이동 거리</h3>
+            <label for="homeAddressInput">출발지</label>
+            <div class="travel-controls">
+              <input id="homeAddressInput" type="text" placeholder="출발지 입력 (예: 서울 강남구, 부산 해운대구)">
+              <button id="setHomeAddress" type="button">주소 설정</button>
+              <button id="currentGpsButton" type="button">📍 현위치</button>
+            </div>
+            <p id="routeStatusMsg" role="status" aria-live="polite">출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.</p>
+            <details class="travel-details">
+              <summary><span>거리 계산 상세</span><span id="travelDistancePreview">계산 전</span></summary>
+              <div id="travelSummary" aria-live="polite"></div>
+              <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. 예상 시간은 국내 시속 55km, 해외 비행 시속 780km 기준입니다. 국내 시·구와 주요 도시 주소는 내장된 대표 좌표로 계산하며, 정확한 번지 좌표가 아닐 수 있습니다. 내장 목록에 없는 출발지 주소만 OpenStreetMap에서 검색합니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
+            </details>
+          </section>
+        </details>
+        <div class="receipt-actions">
+          <button id="saveReceiptImage" class="receipt-share" type="button">이미지 3장 저장</button>
+          <button id="shareReceiptImages" type="button">이미지 공유</button>
+        </div>
         <div id="receiptImageDownloads" class="receipt-image-downloads" hidden aria-live="polite"></div>
-        <p class="receipt-footnote">당신의 2026년을 함께한 순간들</p>
+        <p id="receiptShareStatus" class="receipt-share-status" role="status" aria-live="polite"></p>
+        <div id="receiptData" hidden>
+          <div class="receipt-total"><span>총 지출 · KRW 환산</span><strong id="total">₩0</strong><small id="visitCount">관람 0회 · 국가 0개</small></div>
+          <section class="monthly-summary" aria-labelledby="monthlySummaryTitle">
+            <h3 id="monthlySummaryTitle">월별 관람 · 지출</h3>
+            <div id="monthlySummary"></div>
+          </section>
+          <section class="receipt-selected" aria-labelledby="selectedEventsTitle">
+            <h3 id="selectedEventsTitle">함께한 공연</h3>
+            <div id="selectedEvents" class="receipt-events"></div>
+          </section>
+        </div>
       </aside>
     </div>
   </main>
