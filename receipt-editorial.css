@@ -443,14 +443,16 @@
 
 #receipt .receipt-tools {
   margin: 0 0 12px;
-  border: 1px solid #D2DCE8;
-  background: #E8EEF5;
-  color: #40566F;
+  border: 0;
+  background: transparent;
+  color: #fff;
 }
 
 #receipt .receipt-tools > summary {
-  padding: 12px 14px;
+  padding: 12px 2px;
   cursor: pointer;
+  background: transparent !important;
+  color: #fff;
   font-size: 12px;
   font-weight: 700;
   list-style: none;
@@ -461,12 +463,13 @@
 }
 
 #receipt .receipt-tools > summary:hover {
-  background: #DFE7F0;
+  background: transparent !important;
 }
 
 #receipt .receipt-tools > summary::after {
   content: "+";
   float: right;
+  color: #fff;
 }
 
 #receipt .receipt-tools[open] > summary::after {
