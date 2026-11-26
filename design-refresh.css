@@ -182,13 +182,38 @@ main.wrap { width: min(100%, 1160px); padding: 24px 20px; }
 }
 @media (max-width: 600px) {
   #receipt.receipt:not([hidden]) {
-    inset: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    inset: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
     width: auto;
     max-height: none;
     transform: none;
+    padding: 18px 16px max(18px, env(safe-area-inset-bottom)) !important;
+    border: 1px solid #e6ebe4 !important;
+    border-radius: 22px !important;
+    background: #fff !important;
+    box-shadow: 0 18px 56px #14251b38 !important;
+    overscroll-behavior: contain;
     animation: receipt-mobile-in .2s ease-out;
     -webkit-overflow-scrolling: touch;
   }
+  #receipt .receipt-topline { position: sticky; top: -18px; z-index: 2; margin: -18px -16px 10px; padding: 14px 16px 10px; background: #fff; }
+  #receipt h2 { margin: 2px 0 10px !important; font-size: 24px !important; }
+  #receipt .receipt-total { margin: 0 0 12px; padding: 14px 15px !important; border: 0; border-radius: 15px !important; background: linear-gradient(135deg, #eff6ef, #f7faf5) !important; }
+  #receipt .receipt-total > strong { font-size: clamp(30px, 8vw, 36px) !important; }
+  #receipt .recap-highlights { gap: 8px; margin: 0 0 12px; }
+  #receipt .recap-stat { min-height: 68px; padding: 9px 7px; border-radius: 12px; }
+  #receipt .recap-stat strong { font-size: 25px; }
+  #receipt .member-summary { margin-bottom: 14px; }
+  #receipt .member-counts { gap: 6px; }
+  #receipt .member-count { padding: 6px 9px; border-radius: 999px; }
+  #receipt .receipt-travel { margin-bottom: 14px; padding: 13px; border-radius: 13px; }
+  #receipt .receipt-divider { margin: 10px 0 !important; }
+  #receipt .monthly-summary { margin-bottom: 16px; }
+  #receipt .monthly-summary #monthlySummary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  #receipt .monthly-row { min-height: 54px; padding: 7px 8px !important; }
+  #receipt .receipt-selected { margin-bottom: 12px; }
+  #receipt .grouped-line { margin-bottom: 8px; padding: 11px; border-radius: 12px; }
+  #receipt #saveReceiptImage { position: sticky; bottom: 0; z-index: 2; width: 100%; margin: 8px 0 0; padding: 12px 14px; border-radius: 12px !important; box-shadow: 0 4px 14px #244a351f; }
+  #receipt .receipt-footnote { padding-top: 24px; }
 }
 @keyframes receipt-mobile-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { button, .event { transition: none; } }
