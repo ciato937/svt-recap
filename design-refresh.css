@@ -182,10 +182,14 @@ main.wrap { width: min(100%, 1160px); padding: 24px 20px; }
 }
 @media (max-width: 600px) {
   #receipt.receipt:not([hidden]) {
-    inset: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-    width: auto;
+    top: max(10px, env(safe-area-inset-top));
+    right: auto;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: 50%;
+    width: min(520px, calc(100vw - 20px));
     max-height: none;
-    transform: none;
+    transform: translateX(-50%);
+    display: block;
     padding: 18px 16px max(18px, env(safe-area-inset-bottom)) !important;
     border: 1px solid #e6ebe4 !important;
     border-radius: 22px !important;
@@ -211,7 +215,16 @@ main.wrap { width: min(100%, 1160px); padding: 24px 20px; }
   #receipt .monthly-summary #monthlySummary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
   #receipt .monthly-row { min-height: 54px; padding: 7px 8px !important; }
   #receipt .receipt-selected { margin-bottom: 12px; }
-  #receipt .grouped-line { margin-bottom: 8px; padding: 11px; border-radius: 12px; }
+  #receipt .receipt-events { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 8px; }
+  #receipt .grouped-line { display: flex !important; flex-direction: column; min-width: 0; margin: 0; padding: 10px; border-radius: 12px; }
+  #receipt .group-heading { display: grid; justify-content: start; gap: 6px; }
+  #receipt .group-title { font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+  #receipt .group-count { justify-self: start; padding: 2px 7px; font-size: 10px; }
+  #receipt .group-dates { gap: 4px; margin-top: 8px; }
+  #receipt .group-date { padding: 3px 5px; font-size: 9px; }
+  #receipt .group-total { margin-top: auto; padding-top: 8px; }
+  #receipt .group-total small { font-size: 10px; }
+  #receipt .group-total strong { font-size: 12px; }
   #receipt #saveReceiptImage { position: sticky; bottom: 0; z-index: 2; width: 100%; margin: 8px 0 0; padding: 12px 14px; border-radius: 12px !important; box-shadow: 0 4px 14px #244a351f; }
   #receipt .receipt-footnote { padding-top: 24px; }
 }
