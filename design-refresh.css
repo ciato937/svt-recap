@@ -156,6 +156,11 @@ main.wrap { width: min(100%, 1160px); padding: 24px 20px; }
 #receipt .group-total small { color: #737a70; font-size: 11px; }
 #receipt .group-total strong { color: #315d4b; font-size: 14px; white-space: nowrap; }
 #receipt #saveReceiptImage { min-height: 48px; border-radius: 9px !important; background: var(--accent) !important; font-size: 14px; }
+#receipt .receipt-image-downloads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0 0; padding: 12px; border: 1px solid #e1e8df; border-radius: 12px; background: #f8faf7; }
+#receipt .receipt-image-downloads[hidden] { display: none; }
+#receipt .receipt-image-downloads p { grid-column: 1 / -1; margin: 0 0 2px; color: #526457; font-size: 12px; line-height: 1.5; }
+#receipt .receipt-image-downloads a { display: grid; min-height: 44px; place-items: center; border: 1px solid #dce5da; border-radius: 9px; background: #fff; color: #315d4b; font-size: 12px; font-weight: 700; text-decoration: none; }
+#receipt .receipt-image-downloads a:focus-visible { outline: 3px solid #91b79d; outline-offset: 2px; }
 #receipt .receipt-footnote { font-size: 11px; text-align: center; }
 
 @media (max-width: 760px) {
@@ -226,6 +231,7 @@ main.wrap { width: min(100%, 1160px); padding: 24px 20px; }
   #receipt .group-total small { font-size: 10px; }
   #receipt .group-total strong { font-size: 12px; }
   #receipt #saveReceiptImage { position: sticky; bottom: 0; z-index: 2; width: 100%; margin: 8px 0 0; padding: 12px 14px; border-radius: 12px !important; box-shadow: 0 4px 14px #244a351f; }
+  #receipt .receipt-image-downloads { gap: 7px; padding: 10px; }
   #receipt .receipt-footnote { padding-top: 24px; }
 }
 @keyframes receipt-mobile-in { from { opacity: 0; } to { opacity: 1; } }

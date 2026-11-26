@@ -3,6 +3,8 @@
   const monthlySummary=document.getElementById('monthlySummary');
   const eventList=document.getElementById('events');
   const saveButton=document.getElementById('saveReceiptImage');
+  const downloadBox=document.getElementById('receiptImageDownloads');
+  let receiptDownloadUrls=[];
   const money=value=>`₩${Math.round(value).toLocaleString('ko-KR')}`;
   const monthName=month=>`${String(month).padStart(2,'0')}월`;
   const memberNames=['에스쿱스','정한','조슈아','준','호시','원우','우지','디에잇','민규','도겸','승관','버논','디노'];
@@ -203,10 +205,21 @@
     }else{ctx2.textAlign='center';ctx2.fillStyle='#737a70';ctx2.font='18px sans-serif';ctx2.fillText('선택한 공연이 없습니다.',width/2,eventsTop+42)}
     drawPageFooter(ctx2,width,page2.height,'2 / 2');
 
-    [page1,page2].forEach((page,index)=>{
-      const link=document.createElement('a');link.download=`seventeen-concert-recap-2026-${index+1}.png`;
-      link.href=page.toDataURL('image/png');document.body.append(link);link.click();link.remove();
-    });
+    receiptDownloadUrls.forEach(url=>URL.revokeObjectURL(url));receiptDownloadUrls=[];
+    if(!downloadBox)return;
+    downloadBox.hidden=false;
+    downloadBox.innerHTML='<p>이미지를 각각 눌러 저장해 주세요.</p><span>이미지를 만드는 중…</span>';
+    downloadBox.scrollIntoView({block:'nearest',behavior:'smooth'});
+    Promise.all([page1,page2].map(page=>new Promise((resolve,reject)=>page.toBlob(blob=>blob?resolve(blob):reject(Error('이미지를 만들지 못했습니다.')),'image/png'))))
+      .then(blobs=>{
+        downloadBox.innerHTML='<p>각 페이지를 눌러 PNG 파일로 저장할 수 있어요.</p>';
+        blobs.forEach((blob,index)=>{
+          const url=URL.createObjectURL(blob);receiptDownloadUrls.push(url);
+          const link=document.createElement('a');link.href=url;link.download=`seventeen-concert-recap-2026-${index+1}.png`;link.textContent=`${index+1}페이지 저장`;
+          downloadBox.append(link);
+        });
+      })
+      .catch(error=>{downloadBox.innerHTML='<p>이미지를 만들지 못했습니다. 다시 눌러 주세요.</p>';console.error('영수증 이미지 생성 실패:',error)});
   }
 
   function paintPage(ctx,canvas){
