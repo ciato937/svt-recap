@@ -232,7 +232,7 @@
   }
 
   function drawLabel(ctx, label, x, y, size = 22) {
-    ctx.fillStyle = '#6E6265';
+    ctx.fillStyle = '#574A4E';
     ctx.font = `500 ${size}px sans-serif`;
     ctx.textAlign = 'left';
     ctx.fillText(`( ${label} )`, x, y);
@@ -263,7 +263,7 @@
   function drawPageOne(data) {
     const {canvas, ctx} = createPageCanvas();
     const left = 78, width = canvas.width - left * 2;
-    ctx.fillStyle = '#6C829D';
+    ctx.fillStyle = '#40566F';
     ctx.textAlign = 'left';
     ctx.font = '900 270px sans-serif';
     ctx.letterSpacing = '-8px';
@@ -336,7 +336,7 @@
   function drawPageTwo(data) {
     const {canvas, ctx} = createPageCanvas();
     const left = 78, width = canvas.width - left * 2;
-    ctx.fillStyle = '#6C829D';
+    ctx.fillStyle = '#40566F';
     ctx.textAlign = 'left';
     ctx.font = '900 176px sans-serif';
     ctx.letterSpacing = '-6px';
@@ -386,7 +386,7 @@
       ctx.font = '600 19px sans-serif';
       ctx.fillText(`${item.count}회`, x + cellW - 22, y + 25);
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#6E6265';
+      ctx.fillStyle = '#574A4E';
       ctx.font = '600 19px sans-serif';
       ctx.fillText(money(item.spend), x, y + 50);
       if (column) {
@@ -407,7 +407,7 @@
     const graphTop = Math.max(rowTop + data.archive.length * rowHeight + 28, 1320);
     const {canvas, ctx} = createPageCanvas(Math.max(1600, graphTop + 162 + 90));
     const left = 78, width = canvas.width - left * 2;
-    ctx.fillStyle = '#6C829D';
+    ctx.fillStyle = '#40566F';
     ctx.textAlign = 'left';
     ctx.font = '900 156px sans-serif';
     ctx.letterSpacing = '-6px';
@@ -419,7 +419,7 @@
     ctx.fillText('함께한 공연', left, 355);
     ctx.textAlign = 'right';
     ctx.font = '600 21px sans-serif';
-    ctx.fillStyle = '#6E6265';
+    ctx.fillStyle = '#574A4E';
     ctx.fillText(`${data.rows.length}회 관람 · ${data.archive.length}개 공연`, left + width, 355);
     drawRule(ctx, left, 390, width);
 
@@ -430,7 +430,7 @@
       ctx.font = '800 25px sans-serif';
       const titleLines = wrapText(ctx, group.title, width - 310).slice(0, 2);
       titleLines.forEach((line, lineIndex) => ctx.fillText(line, left, y + 28 + lineIndex * 30));
-      ctx.fillStyle = '#6E6265';
+      ctx.fillStyle = '#574A4E';
       ctx.font = '500 16px sans-serif';
       const details = `${group.count}회 관람 · ${group.dates.join(' · ')}`;
       wrapText(ctx, details, width - 310).slice(0, 2).forEach((line, lineIndex) => ctx.fillText(line, left, y + 68 + lineIndex * 21));
@@ -450,11 +450,11 @@
       const stubHeight = Math.max(12, 112 / maxVisits);
       for (let visit = 0; visit < group.count; visit++) {
         const y = graphBottom - 26 - (visit + 1) * stubHeight;
-        ctx.fillStyle = visit % 2 ? '#6C829D' : '#E8BFC7';
+        ctx.fillStyle = visit % 2 ? '#526B88' : '#E8BFC7';
         ctx.fillRect(x, y, columnWidth, Math.max(2, stubHeight - 2));
       }
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#6E6265';
+      ctx.fillStyle = '#574A4E';
       ctx.font = '600 15px sans-serif';
       ctx.fillText(String(index + 1).padStart(2, '0'), x + columnWidth / 2, graphBottom);
     });
@@ -464,7 +464,7 @@
 
   function drawPageFooter(ctx, canvas, label) {
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#6E6265';
+    ctx.fillStyle = '#574A4E';
     ctx.font = '500 16px sans-serif';
     ctx.fillText(`CARAT MEMORY · 2026 · ${label}`, canvas.width / 2, canvas.height - 42);
   }

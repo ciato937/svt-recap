@@ -91,7 +91,7 @@
 #receipt .editorial-year,
 #receipt .editorial-word {
   display: block;
-  color: #6C829D;
+  color: #40566F;
   font-size: clamp(104px, 25vw, 204px);
   font-weight: 900;
   line-height: .82;
@@ -156,7 +156,7 @@
 
 #receipt .editorial-label {
   display: block;
-  color: #6E6265;
+  color: #574A4E;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: -.03em;
@@ -234,7 +234,7 @@
 }
 
 #receipt .editorial-heading-row > span {
-  color: #6E6265;
+  color: #574A4E;
   font-size: 11px;
   text-align: right;
 }
@@ -294,7 +294,7 @@
 #receipt .member-row small,
 #receipt .monthly-editorial-row small {
   margin-left: 3px;
-  color: #6E6265;
+  color: #574A4E;
   font-size: 9px;
   font-weight: 500;
 }
@@ -363,7 +363,7 @@
 
 #receipt .archive-info p {
   margin: 3px 0 0;
-  color: #6E6265;
+  color: #574A4E;
   font-size: 9px;
   line-height: 1.4;
   overflow-wrap: anywhere;
@@ -399,7 +399,7 @@
   justify-content: flex-end;
   min-width: 0;
   height: 110px;
-  color: #6E6265;
+  color: #574A4E;
   font-size: 9px;
 }
 
@@ -427,14 +427,14 @@
 
 #receipt .empty-editorial {
   margin: 12px 0;
-  color: #6E6265;
+  color: #574A4E;
   font-size: 12px;
 }
 
 #receipt .editorial-footer {
   margin-top: auto;
   padding-top: 28px;
-  color: #6E6265;
+  color: #574A4E;
   font-size: 9px;
   font-weight: 600;
   letter-spacing: .04em;
@@ -494,7 +494,7 @@
 
 #receipt .receipt-actions #saveReceiptImage {
   margin: 0;
-  background: #6C829D !important;
+  background: #40566F !important;
 }
 
 #receipt .receipt-image-downloads {
