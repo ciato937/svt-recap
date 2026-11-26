@@ -1,690 +1,135 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>2026 SEVENTEEN Concert & Festival Recap</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="2026 SEVENTEEN 공연과 페스티벌 관람 기록, 지출을 정리하는 리캡 생성기">
+  <title>2026 SEVENTEEN 공연 리캡</title>
   <style>
-    :root {
-      --bg: #F6F7F9;
-      --surface: #FFFFFF;
-      --surface-subtle: #F9FAFB;
-      --border: #E2E5E9;
-      --border-strong: #111111;
-      --text: #111111;
-      --text-secondary: #555961;
-      --text-muted: #868C96;
-      --accent: #111111;
-      --accent-soft: #F0F2F5;
-      --highlight: #1E40AF;
-      --highlight-bg: #EFF6FF;
-      --danger: #B91C1C;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      max-width: 100%;
-      overflow-x: hidden;
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-      font-size: 15px;
-      line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .tabular {
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Header & Sticky Tabs */
-    .app-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 16px 12px;
-    }
-
-    .header-inner {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-
-    .header-kicker {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .header-title {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin: 0 0 4px;
-      color: var(--text);
-    }
-
-    .header-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin: 0;
-    }
-
-    /* Shared Banner */
-    .shared-banner {
-      display: none;
-      background: var(--highlight-bg);
-      border-bottom: 1px solid #BFDBFE;
-      padding: 10px 16px;
-    }
-
-    .shared-banner.active {
-      display: block;
-    }
-
-    .shared-banner-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .shared-banner-text {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--highlight);
-    }
-
-    /* Sticky Mobile Mode Switcher */
-    .sticky-nav {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 16px;
-    }
-
-    .sticky-nav-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .mode-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      flex: 1;
-    }
-
-    .mode-tab {
-      min-height: 40px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-secondary);
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 0 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      touch-action: manipulation;
-    }
-
-    .mode-tab.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #FFFFFF;
-    }
-
-    .badge-count {
-      display: inline-block;
-      padding: 1px 6px;
-      border-radius: 99px;
-      font-size: 11px;
-      font-weight: 700;
-      background: rgba(0, 0, 0, 0.08);
-      color: inherit;
-    }
-
-    .mode-tab.active .badge-count {
-      background: rgba(255, 255, 255, 0.22);
-      color: #FFFFFF;
-    }
-
-    /* Main Container */
-    .main-wrap {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 16px 16px 48px;
-    }
-
-    @media (min-width: 860px) {
-      .mode-tabs {
-        display: none;
-      }
-      .sticky-nav {
-        display: none;
-      }
-      .desktop-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-        gap: 24px;
-        align-items: start;
-      }
-      .panel-select,
-      .panel-receipt {
-        display: block !important;
-      }
-      .panel-receipt {
-        position: sticky;
-        top: 16px;
-      }
-    }
-
-    .hidden-panel {
-      display: none;
-    }
-
-    /* Filter Sections */
-    .section-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 12px;
-      min-width: 0;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .section-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-secondary);
-      letter-spacing: 0.02em;
-    }
-
-    .text-btn {
-      background: none;
-      border: none;
-      padding: 4px 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    /* Country Grid (No horizontal scroll) */
-    .country-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    @media (min-width: 520px) {
-      .country-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-
-    .country-item {
-      display: flex;
-      align-items: stretch;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface);
-      overflow: hidden;
-      min-height: 42px;
-      min-width: 0;
-    }
-
-    .country-item.filtered {
-      border-color: var(--border-strong);
-      background: var(--accent-soft);
-    }
-
-    .country-filter-btn {
-      flex: 1;
-      min-width: 0;
-      border: none;
-      background: transparent;
-      padding: 6px 8px;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      touch-action: manipulation;
-    }
-
-    .country-name {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .country-stat {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .country-check-btn {
-      width: 36px;
-      flex-shrink: 0;
-      border: none;
-      border-left: 1px solid var(--border);
-      background: var(--surface-subtle);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: manipulation;
-    }
-
-    .country-check-box {
-      width: 16px;
-      height: 16px;
-      border: 1.5px solid #9CA3AF;
-      border-radius: 3px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 800;
-      color: #FFFFFF;
-      background: #FFFFFF;
-    }
-
-    .country-check-box.checked {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .country-check-box.partial {
-      background: #6B7280;
-      border-color: #6B7280;
-    }
-
-    /* Month Grid (Wrap, no horizontal scroll) */
-    .month-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    @media (min-width: 480px) {
-      .month-grid {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-      }
-    }
-
-    .month-btn {
-      min-height: 40px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface);
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 4px 2px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      touch-action: manipulation;
-    }
-
-    .month-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #FFFFFF;
-    }
-
-    .month-sub {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 1px;
-    }
-
-    .month-btn.active .month-sub {
-      color: #D1D5DB;
-    }
-
-    /* Category & Search */
-    .cat-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .cat-chip {
-      min-height: 36px;
-      padding: 0 12px;
-      border: 1px solid var(--border);
-      border-radius: 99px;
-      background: var(--surface);
-      color: var(--text-secondary);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .cat-chip.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #FFFFFF;
-    }
-
-    .search-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .text-input {
-      width: 100%;
-      min-width: 0;
-      min-height: 42px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0 12px;
-      font-size: 14px;
-      color: var(--text);
-      background: var(--surface);
-    }
-
-    .text-input:focus {
-      outline: none;
-      border-color: var(--border-strong);
-    }
-
-    /* Bulk Actions Bar */
-    .bulk-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-      padding: 0 2px;
-    }
-
-    .bulk-info {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-
-    .bulk-btns {
-      display: flex;
-      gap: 6px;
-    }
-
-    .outline-btn {
-      min-height: 36px;
-      padding: 0 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface);
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .outline-btn:active {
-      background: var(--accent-soft);
-    }
-
-    /* Event Cards */
-    .event-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .event-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      min-width: 0;
-    }
-
-    .event-card.selected {
-      border-color: var(--border-strong);
-      box-shadow: 0 1px 0 var(--border-strong);
-    }
-
-    .event-top {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .event-checkbox {
-      width: 22px;
-      height: 22px;
-      margin-top: 2px;
-      flex-shrink: 0;
-      border: 1.5px solid #9CA3AF;
-      border-radius: 4px;
-      background: #FFFFFF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 800;
-      color: #FFFFFF;
-    }
-
-    .event-card.selected .event-checkbox {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .event-body {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .event-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
-    }
-
-    .event-date {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .event-cat-tag {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      background: var(--accent-soft);
-      padding: 1px 6px;
-      border-radius: 4px;
-    }
-
-    .event-artist {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 2px;
-    }
-
-    .event-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      word-break: keep-all;
-      overflow-wrap: break-word;
-      margin-bottom: 3px;
-    }
-
-    .event-venue {
-      font-size: 12px;
-      color: var(--text-muted);
-      word-break: keep-all;
-      overflow-wrap: break-word;
-    }
-
-    /* Ticket Options Drawer inside Card */
-    .ticket-drawer {
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px dashed var(--border);
-    }
-
-    .ticket-drawer-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-    }
-
-    .grade-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .grade-btn {
-      min-height: 38px;
-      padding: 6px 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface-subtle);
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .grade-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #FFFFFF;
-    }
-
-    /* Custom Price Box */
-    .custom-price-box {
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .custom-input-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .currency-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .curr-btn {
-      min-height: 40px;
-      padding: 0 10px;
-      border: none;
-      background: var(--surface-subtle);
-      color: var(--text-secondary);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .curr-btn.active {
-      background: var(--accent);
-      color: #FFFFFF;
-    }
-
-    .custom-hint {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    /* Receipt Styling */
-    .receipt-box {
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      border-radius: 4px;
-      padding: 20px 16px;
-      min-width: 0;
-    }
-
-    .receipt-header {
-      text-align: center;
-      padding-bottom: 14px;
-      border-bottom: 1.5px dashed var(--border-strong);
-      margin-bottom: 14px;
-    }
-
-    .receipt-brand {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .receipt-title {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin: 0 0 8px;
-    }
-
-    .nick-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    :root{--paper:#fff;--ink:#151515;--muted:#696969;--line:#dedede;--soft:#f7f7f5;--blue:#174ea6;--serif:Georgia,'Times New Roman',serif}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;max-width:100%;background:#f6f6f4;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+    body{overflow-x:hidden}.tabular,output,.amount{font-variant-numeric:tabular-nums}
+    button,input,select{font:inherit}button{color:inherit;touch-action:manipulation;cursor:pointer}
+    .masthead{background:var(--paper);border-bottom:1px solid var(--line);padding:24px 18px 20px}.masthead-inner,main{width:min(100%,1040px);margin:auto}.eyebrow{font-size:11px;font-weight:750;letter-spacing:.13em;color:var(--muted);text-transform:uppercase}.masthead h1{font-family:var(--serif),serif;font-size:clamp(25px,6vw,38px);letter-spacing:-.04em;line-height:1.12;margin:8px 0}.masthead p{font-size:13px;color:var(--muted);margin:0}
+    main{padding:16px 14px 48px}.notice{border:1px solid var(--line);background:#fff;padding:12px 14px;margin-bottom:14px;font-size:13px}.notice strong{display:block;margin-bottom:3px}.notice p{margin:0;color:#555}.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px;align-items:start}.panel{background:var(--paper);border:1px solid var(--line);padding:16px;min-width:0;margin-bottom:12px}.panel h2{font-size:15px;margin:0 0 12px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.panel-head h2{margin:0}.subtle{font-size:12px;color:var(--muted)}
+    .country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.country{min-height:44px;border:1px solid var(--line);background:#fff;text-align:left;padding:8px 9px;border-radius:2px}.country[aria-pressed="true"]{border-color:var(--ink);background:#f2f2f0;font-weight:700}.country .flag{margin-right:5px}.actions{display:flex;gap:6px;flex-wrap:wrap}.small-btn,.action-btn,.filter-chip,.month-btn,.currency-btn{min-height:44px;border:1px solid var(--line);background:#fff;padding:0 12px;border-radius:2px;font-size:12px;font-weight:650}.small-btn{min-height:44px}.filter-row,.month-grid,.chips{display:flex;gap:6px;flex-wrap:wrap}.filter-chip[aria-pressed="true"],.month-btn[aria-pressed="true"],.currency-btn[aria-pressed="true"],.action-btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}.month-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.month-btn{padding:4px 2px}.month-btn small{font-size:10px;opacity:.72}.field{display:grid;gap:5px;min-width:0}.field label{font-size:12px;font-weight:700}.field input,.field select{width:100%;min-height:44px;border:1px solid var(--line);padding:8px 10px;background:#fff;border-radius:2px;min-width:0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-grid .wide{grid-column:1/-1}.price-row{display:flex;gap:8px;align-items:stretch}.price-row .field{flex:1}.currency-toggle{display:flex;align-items:stretch}.currency-btn{padding:0 10px;white-space:nowrap}.event-list{display:grid;gap:8px}.event-card{border:1px solid var(--line);padding:12px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;background:#fff}.event-card.selected{border-color:var(--ink)}.event-check{width:24px;height:24px;min-width:24px;accent-color:#111;margin:2px 0 0}.event-date{font-size:12px;font-weight:750}.event-title{font-size:14px;font-weight:750;margin:2px 0}.event-meta,.event-venue{font-size:12px;color:var(--muted)}.event-price{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.event-price input{width:min(100%,150px);height:40px;padding:6px 8px;border:1px solid var(--line);font-variant-numeric:tabular-nums}.empty{padding:18px 12px;border:1px dashed var(--line);font-size:13px;color:#555;background:#fcfcfb}.receipt{border:1px solid var(--ink);padding:20px 16px;background:#fff}.receipt-head{text-align:center;border-bottom:1px dashed var(--ink);padding-bottom:14px;margin-bottom:14px}.receipt-head .eyebrow{letter-spacing:.16em}.receipt h2{font-family:var(--serif),serif;font-size:22px;margin:5px 0}.nickname{width:100%;border:0;border-bottom:1px solid var(--line);padding:6px;text-align:center;font-size:13px}.total-label{font-size:11px;color:var(--muted);letter-spacing:.1em}.total{font-size:clamp(24px,6vw,34px);font-weight:800;letter-spacing:-.04em;line-height:1.3}.receipt-stat{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}.receipt-section{margin-top:16px}.receipt-section h3{font-size:12px;margin:0 0 7px}.breakdown{display:grid;gap:4px}.currency-line{font-size:12px;display:flex;justify-content:space-between;gap:6px}.bars{display:grid;gap:7px}.bar-row{display:grid;grid-template-columns:34px minmax(0,1fr) 35px;gap:7px;align-items:center;font-size:11px}.bar-track{height:8px;background:#eee}.bar-fill{height:100%;background:#191919}.receipt-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.action-btn{min-height:46px}.footnote{font-size:10px;color:var(--muted);margin:12px 0 0}.toolbar{display:flex;gap:6px;flex-wrap:wrap}.result-count{font-size:12px;color:var(--muted)}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    dialog{width:min(94vw,560px);max-height:90dvh;border:1px solid var(--ink);padding:16px;background:#fff;color:var(--ink)}dialog::backdrop{background:rgba(0,0,0,.45)}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.modal-head h2{font-size:16px;margin:0}#previewCanvas{display:block;width:100%;height:auto;border:1px solid var(--line);background:#fff}.modal-actions{display:flex;gap:8px;margin-top:10px}.modal-actions button{flex:1}
+    @media(max-width:760px){.layout{grid-template-columns:1fr}.receipt-panel{order:-1}.panel{padding:14px}.country-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(min-width:761px){.receipt-panel{position:sticky;top:12px}.country-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    @media(max-width:360px){main{padding-left:10px;padding-right:10px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.month-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.receipt-actions{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="masthead"><div class="masthead-inner"><div class="eyebrow">SEVENTEEN · YEAR IN REVIEW · 2026</div><h1>나의 공연 리캡</h1><p>공연을 기록하고, 티켓 지출을 정리해 보세요.</p></div></header>
+  <main>
+    <aside class="notice" role="note"><strong>일정 데이터 안내</strong><p>2026년 공식 공연 일정을 확인할 수 있는 자료가 없어 날짜·도시를 임의로 만들지 않았습니다. 아래 공연 유형을 참고해 실제 일정과 가격을 직접 등록하면 월별 리캡에 반영됩니다. 환율은 참고용 추정치이며 결제 환율과 다를 수 있습니다.</p></aside>
+    <div class="layout">
+      <section aria-label="공연 선택 및 필터">
+        <section class="panel"><div class="panel-head"><h2>국가 / 지역</h2><div class="actions"><button class="small-btn" id="selectAllCountries" type="button">전체 선택</button><button class="small-btn" id="clearCountries" type="button">전체 해제</button></div></div><div class="country-grid" id="countries"></div></section>
+        <section class="panel"><div class="panel-head"><h2>월별 필터</h2><div class="actions"><button class="small-btn" id="selectAllMonths" type="button">전체 선택</button><button class="small-btn" id="clearMonths" type="button">전체 해제</button></div></div><div class="month-grid" id="months"></div></section>
+        <section class="panel"><h2>공연 유형</h2><div class="chips" id="categories"></div></section>
+        <section class="panel"><div class="panel-head"><h2>공연 기록</h2><span class="result-count" id="resultCount"></span></div><div class="toolbar" style="margin-bottom:10px"><button class="small-btn" id="selectVisible" type="button">표시 공연 선택</button><button class="small-btn" id="clearVisible" type="button">표시 공연 해제</button><button class="small-btn" id="addEventToggle" type="button">＋ 내 공연 추가</button></div><div id="addEventArea" hidden>
+          <form id="addEventForm" class="form-grid" style="padding:12px 0 14px;border-bottom:1px solid var(--line);margin-bottom:12px">
+            <div class="field"><label for="newDate">공연 날짜</label><input id="newDate" type="date" min="2026-01-01" max="2026-12-31" required></div>
+            <div class="field"><label for="newCountry">국가 / 지역</label><select id="newCountry" required></select></div>
+            <div class="field"><label for="newCategory">공연 유형</label><select id="newCategory" required></select></div>
+            <div class="field"><label for="newArtist">아티스트 / 유닛</label><input id="newArtist" maxlength="50" placeholder="예: SEVENTEEN, CxM"></div>
+            <div class="field wide"><label for="newTitle">공연명</label><input id="newTitle" maxlength="100" placeholder="공연 또는 페스티벌 이름" required></div>
+            <div class="field wide"><label for="newVenue">도시 / 공연장</label><input id="newVenue" maxlength="100" placeholder="예: 서울 · 공연장"></div>
+            <div class="field"><label for="newPrice">티켓 가격</label><input id="newPrice" type="number" min="0" step="1" inputmode="decimal" placeholder="0"></div>
+            <div class="field"><label for="newCurrency">입력 통화</label><select id="newCurrency"></select></div>
+            <button class="action-btn primary wide" type="submit">공연 기록 추가</button>
+          </form>
+        </div><div class="event-list" id="eventList"></div></section>
+      </section>
+      <aside class="receipt-panel" aria-label="리캡 영수증"><section class="receipt" id="receipt">
+        <div class="receipt-head"><div class="eyebrow">CARAT MEMORY · 2026</div><h2>공연 영수증</h2><input class="nickname" id="nickname" maxlength="24" placeholder="닉네임 (선택)" aria-label="닉네임"></div>
+        <div class="total-label">총 지출 · KRW 환산</div><div class="total tabular" id="total">₩0</div>
+        <div class="receipt-stat"><span>관람 횟수</span><strong id="visitCount">0회</strong></div><div class="receipt-stat"><span>선택 국가</span><strong id="countryCount">0개</strong></div>
+        <div class="receipt-section"><h3>통화별 지출 합계 · 입력 통화 기준</h3><div class="breakdown" id="currencyBreakdown"></div></div>
+        <div class="receipt-section"><h3>월별 관람 / 지출 분포</h3><div class="bars" id="monthlyBars"></div></div>
+        <div class="receipt-section"><h3>선택한 공연</h3><div class="breakdown" id="selectedSummary"></div></div>
+        <div class="receipt-actions"><button class="action-btn" type="button" id="shareButton">공유 링크 복사</button><button class="action-btn primary" type="button" id="previewButton">영수증 이미지 미리보기</button></div>
+        <p class="footnote">환율 기준일: 2026.11.26 · 참고용 추정 환율. KRW 입력 금액에는 환율을 다시 적용하지 않습니다.</p>
+      </section></aside>
+    </div>
+  </main>
+  <dialog id="previewDialog" aria-labelledby="previewTitle"><div class="modal-head"><h2 id="previewTitle">영수증 이미지 미리보기</h2><button class="small-btn" type="button" id="closePreview" aria-label="미리보기 닫기">닫기</button></div><canvas id="previewCanvas" width="900" height="1500"></canvas><div class="modal-actions"><button class="action-btn" type="button" id="downloadPng">PNG 이미지 저장</button><button class="action-btn primary" type="button" id="shareImage">이미지 공유</button></div><p class="footnote">이미지는 2x 해상도로 생성됩니다. 이미지 공유 기능은 브라우저 지원 여부에 따라 달라질 수 있습니다.</p></dialog>
+  <script>
+  (()=>{
+    'use strict';
+    const COUNTRIES=[
+      {id:'KR',name:'대한민국',flag:'🇰🇷',currency:'KRW'},
+      {id:'JP',name:'일본',flag:'🇯🇵',currency:'JPY'},
+      {id:'HK',name:'홍콩',flag:'🇭🇰',currency:'HKD'},
+      {id:'MO',name:'마카오',flag:'🇲🇴',currency:'MOP'},
+      {id:'TW',name:'대만',flag:'🇹🇼',currency:'TWD'},
+      {id:'SG',name:'싱가포르',flag:'🇸🇬',currency:'SGD'},
+      {id:'TH',name:'태국',flag:'🇹🇭',currency:'THB'},
+      {id:'PH',name:'필리핀',flag:'🇵🇭',currency:'PHP'}
+    ];
+    const CATEGORIES=['단체 월드투어','팬미팅','유닛·솔로 투어','페스티벌'];
+    const PROGRAMS=[
+      {name:'[NEW_] 월드투어 / 앙코르',category:CATEGORIES[0],artist:'SEVENTEEN'},
+      {name:'YAKUSOKU',category:CATEGORIES[1],artist:'SEVENTEEN'},
+      {name:'CARAT LAND',category:CATEGORIES[1],artist:'SEVENTEEN'},
+      ...['CxM','DxS','V8','DINO','JxJ'].map(name=>({name:`${name} 유닛·솔로 투어`,category:CATEGORIES[2],artist:name})),
+      {name:'서울재즈페스티벌 (서재페)',category:CATEGORIES[3],artist:'SEVENTEEN'},
+      {name:'매들리 메들리',category:CATEGORIES[3],artist:'SEVENTEEN'}
+    ];
+    // 현지 통화 / KRW 비율(1 KRW당 현지 통화). 일부 통화는 추정치이므로 가격 입력 때 안내한다.
+    const FX={KRW:1,JPY:.1185,HKD:.005837,MOP:.00601,TWD:.02455,SGD:.00092,THB:.0253,PHP:.0418};
+    const FX_APPROX=new Set(['MOP','SGD','THB','PHP']);
+    const state={events:[],countries:new Set(COUNTRIES.map(c=>c.id)),months:new Set(Array.from({length:12},(_,i)=>i+1)),categories:new Set(CATEGORIES),query:'',nickname:''};
+    const $=id=>document.getElementById(id);
+    const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const money=(value,currency='KRW')=>new Intl.NumberFormat('ko-KR',{style:'currency',currency,maximumFractionDigits:currency==='KRW'?0:2}).format(Number(value)||0);
+    const localToKrw=(amount,currency)=>currency==='KRW'?Number(amount)||0:(Number(amount)||0)/(FX[currency]||1);
+    const monthOf=e=>Number(e.date.slice(5,7));
+    const persist=()=>{try{localStorage.setItem('svt-recap-2026',JSON.stringify({events:state.events,nickname:state.nickname}));}catch(_){}};
+    function makeId(){return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+    function drawCountries(){ $('countries').innerHTML=COUNTRIES.map(c=>`<button class="country" type="button" data-country="${c.id}" aria-pressed="${state.countries.has(c.id)}"><span class="flag">${c.flag}</span>${c.name}</button>`).join(''); }
+    function drawMonths(){ $('months').innerHTML=Array.from({length:12},(_,i)=>i+1).map(m=>{const n=state.events.filter(e=>monthOf(e)===m&&e.selected).length;return `<button class="month-btn" type="button" data-month="${m}" aria-pressed="${state.months.has(m)}">${m}월<small>${n}회</small></button>`}).join(''); }
+    function drawCategories(){ $('categories').innerHTML=CATEGORIES.map(c=>`<button class="filter-chip" type="button" data-category="${esc(c)}" aria-pressed="${state.categories.has(c)}">${esc(c)}</button>`).join(''); }
+    function visibleEvents(){const q=state.query.trim().toLocaleLowerCase();return state.events.filter(e=>state.countries.has(e.country)&&state.months.has(monthOf(e))&&state.categories.has(e.category)&&(!q||`${e.title} ${e.artist} ${e.venue}`.toLocaleLowerCase().includes(q)));}
+    function renderEvents(){const items=visibleEvents();$('resultCount').textContent=`표시 ${items.length}개 · 선택 ${state.events.filter(e=>e.selected).length}개`;
+      if(!items.length){$('eventList').innerHTML='<div class="empty">등록된 공연이 없어요. 공식 일정을 확인한 뒤 <strong>내 공연 추가</strong>로 기록해 주세요. [NEW_], YAKUSOKU, CARAT LAND, CxM, DxS, V8, DINO, JxJ, 서재페, 매들리 메들리 등 원하는 프로그램을 직접 등록할 수 있습니다.</div>';return;}
+      $('eventList').innerHTML=items.map(e=>{const c=COUNTRIES.find(x=>x.id===e.country);const cur=e.currency||c.currency;return `<article class="event-card ${e.selected?'selected':''}"><input class="event-check" type="checkbox" data-select="${esc(e.id)}" aria-label="${esc(e.title)} 선택" ${e.selected?'checked':''}><div><div class="event-date">${esc(e.date)} · ${c.flag} ${c.name}</div><div class="event-title">${esc(e.title)}</div><div class="event-meta">${esc(e.artist||'SEVENTEEN')} · ${esc(e.category)}</div><div class="event-venue">${esc(e.venue||'장소 미입력')}</div><div class="event-price"><label class="sr-only" for="price-${esc(e.id)}">티켓 가격</label><input id="price-${esc(e.id)}" type="number" min="0" step="1" inputmode="decimal" data-price="${esc(e.id)}" value="${Number(e.price)||0}" aria-label="${esc(e.title)} 티켓 가격"><select data-currency="${esc(e.id)}" aria-label="${esc(e.title)} 가격 통화">${[c.currency,'KRW'].filter((v,i,a)=>a.indexOf(v)===i).map(v=>`<option value="${v}" ${v===cur?'selected':''}>${v==='KRW'?'KRW 원':v+' 현지 통화'}</option>`).join('')}</select><button class="small-btn" type="button" data-delete="${esc(e.id)}" aria-label="${esc(e.title)} 기록 삭제">삭제</button>${FX_APPROX.has(cur)?'<span class="subtle">환율 추정</span>':''}</div></div></article>`}).join('');
+    }
+    function renderReceipt(){const chosen=state.events.filter(e=>e.selected);const total=chosen.reduce((s,e)=>s+localToKrw(e.price,e.currency||COUNTRIES.find(c=>c.id===e.country).currency),0);$('total').textContent=money(total);$('visitCount').textContent=`${chosen.length}회`;$('countryCount').textContent=`${new Set(chosen.map(e=>e.country)).size}개`;
+      const sums={};chosen.forEach(e=>{const cur=e.currency||COUNTRIES.find(c=>c.id===e.country).currency;sums[cur]=(sums[cur]||0)+(Number(e.price)||0)});$('currencyBreakdown').innerHTML=Object.keys(sums).length?Object.keys(sums).sort().map(cur=>`<div class="currency-line"><span>${cur}${FX_APPROX.has(cur)?' · 추정 환율':''}</span><strong>${money(sums[cur],cur)}</strong></div>`).join(''):'<div class="subtle">선택한 공연이 없습니다.</div>';
+      const max=Math.max(1,...Array.from({length:12},(_,i)=>chosen.filter(e=>monthOf(e)===i+1).reduce((s,e)=>s+localToKrw(e.price,e.currency||COUNTRIES.find(c=>c.id===e.country).currency),0)));
+      $('monthlyBars').innerHTML=Array.from({length:12},(_,i)=>{const month=i+1,es=chosen.filter(e=>monthOf(e)===month),amount=es.reduce((s,e)=>s+localToKrw(e.price,e.currency||COUNTRIES.find(c=>c.id===e.country).currency),0),width=Math.round(amount/max*100);return `<div class="bar-row"><span>${month}월</span><div class="bar-track" aria-label="${month}월 지출 ${money(amount)}"><div class="bar-fill" style="width:${width}%"></div></div><span class="tabular">${es.length}회</span></div>`}).join('');
+      $('selectedSummary').innerHTML=chosen.length?chosen.slice(0,8).map(e=>`<div class="currency-line"><span>${esc(e.date.slice(5))} · ${esc(e.title)}</span><strong>${money(localToKrw(e.price,e.currency||COUNTRIES.find(c=>c.id===e.country).currency))}</strong></div>`).join('')+(chosen.length>8?`<div class="subtle">외 ${chosen.length-8}건</div>`:''):'<div class="subtle">공연을 선택하면 여기에 표시됩니다.</div>';
+      $('nickname').value=state.nickname;drawMonths();
+    }
+    function render(){drawCountries();drawCategories();renderEvents();renderReceipt();}
+    function encodeState(){const payload={v:1,e:state.events.map(e=>[e.date,e.country,e.category,e.title,e.artist,e.venue,Number(e.price)||0,e.currency,e.selected?1:0]),n:state.nickname};return btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+    function loadHash(){const match=location.hash.match(/(?:^#|&)r=([^&]+)/);if(!match)return false;try{const raw=decodeURIComponent(match[1]).replace(/-/g,'+').replace(/_/g,'/');const data=JSON.parse(decodeURIComponent(escape(atob(raw))));if(data.v!==1||!Array.isArray(data.e))return false;state.events=data.e.map(a=>({id:makeId(),date:a[0],country:a[1],category:a[2],title:String(a[3]||'').slice(0,100),artist:String(a[4]||'').slice(0,50),venue:String(a[5]||'').slice(0,100),price:Math.max(0,Number(a[6])||0),currency:a[7],selected:a[8]===1})).filter(e=>/^2026-\d\d-\d\d$/.test(e.date)&&COUNTRIES.some(c=>c.id===e.country)&&CATEGORIES.includes(e.category));state.nickname=String(data.n||'').slice(0,24);return true;}catch(_){return false;}}
+    function populateForm(){ $('newCountry').innerHTML=COUNTRIES.map(c=>`<option value="${c.id}">${c.flag} ${c.name}</option>`).join('');$('newCategory').innerHTML=CATEGORIES.map(c=>`<option>${c}</option>`).join('');$('newCurrency').innerHTML=['KRW',...COUNTRIES.map(c=>c.currency).filter((v,i,a)=>a.indexOf(v)===i&&v!=='KRW')].map(cur=>`<option value="${cur}">${cur==='KRW'?'KRW 원':cur}</option>`).join('');$('newDate').value='2026-01-01';}
+    $('countries').addEventListener('click',e=>{const b=e.target.closest('[data-country]');if(!b)return;const id=b.dataset.country;state.countries.has(id)?state.countries.delete(id):state.countries.add(id);render();});
+    $('months').addEventListener('click',e=>{const b=e.target.closest('[data-month]');if(!b)return;const m=Number(b.dataset.month);state.months.has(m)?state.months.delete(m):state.months.add(m);render();});
+    $('categories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;const c=b.dataset.category;state.categories.has(c)?state.categories.delete(c):state.categories.add(c);render();});
+    $('eventList').addEventListener('change',e=>{const t=e.target;if(t.matches('[data-select]')){const item=state.events.find(x=>x.id===t.dataset.select);if(item)item.selected=t.checked;}else if(t.matches('[data-price]')){const item=state.events.find(x=>x.id===t.dataset.price);if(item)item.price=Math.max(0,Number(t.value)||0);}else if(t.matches('[data-currency]')){const item=state.events.find(x=>x.id===t.dataset.currency);if(item)item.currency=t.value;}persist();render();});
+    $('eventList').addEventListener('click',e=>{const b=e.target.closest('[data-delete]');if(b){state.events=state.events.filter(x=>x.id!==b.dataset.delete);persist();render();}});
+    $('selectAllCountries').onclick=()=>{state.countries=new Set(COUNTRIES.map(c=>c.id));render()};$('clearCountries').onclick=()=>{state.countries.clear();render()};$('selectAllMonths').onclick=()=>{state.months=new Set(Array.from({length:12},(_,i)=>i+1));render()};$('clearMonths').onclick=()=>{state.months.clear();render()};
+    $('selectVisible').onclick=()=>{visibleEvents().forEach(e=>e.selected=true);persist();render()};$('clearVisible').onclick=()=>{visibleEvents().forEach(e=>e.selected=false);persist();render()};$('addEventToggle').onclick=()=>{$('addEventArea').hidden=!$('addEventArea').hidden};
+    $('addEventForm').addEventListener('submit',e=>{e.preventDefault();const country=$('newCountry').value;const item={id:makeId(),date:$('newDate').value,country,category:$('newCategory').value,title:$('newTitle').value.trim(),artist:$('newArtist').value.trim()||'SEVENTEEN',venue:$('newVenue').value.trim(),price:Math.max(0,Number($('newPrice').value)||0),currency:$('newCurrency').value,selected:true};if(!item.date||!item.title)return;state.events.push(item);state.countries.add(country);state.months.add(monthOf(item));state.categories.add(item.category);e.target.reset();$('newDate').value='2026-01-01';persist();render();$('addEventArea').hidden=true;});
+    $('nickname').addEventListener('input',e=>{state.nickname=e.target.value.slice(0,24);persist()});
+    async function shareLink(){const url=`${location.href.split('#')[0]}#r=${encodeState()}`;try{await navigator.clipboard.writeText(url);alert('공유 링크를 복사했어요.');}catch(_){const ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();try{document.execCommand('copy');alert('공유 링크를 복사했어요.');}catch(__){prompt('아래 링크를 복사해 주세요.',url)}ta.remove();}}
+    $('shareButton').onclick=shareLink;
+    function receiptCanvas(){const canvas=$('previewCanvas'),ctx=canvas.getContext('2d'),w=900,h=1500,pad=72;ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.fillStyle='#151515';ctx.textAlign='center';ctx.font='700 22px sans-serif';ctx.fillText('CARAT MEMORY · 2026',w/2,90);ctx.font='700 54px Georgia, serif';ctx.fillText('공연 영수증',w/2,165);ctx.strokeStyle='#151515';ctx.setLineDash([8,7]);ctx.beginPath();ctx.moveTo(pad,205);ctx.lineTo(w-pad,205);ctx.stroke();ctx.setLineDash([]);
+      const chosen=state.events.filter(e=>e.selected),total=chosen.reduce((s,e)=>s+localToKrw(e.price,e.currency||COUNTRIES.find(c=>c.id===e.country).currency),0);ctx.textAlign='left';ctx.fillStyle='#696969';ctx.font='500 22px sans-serif';ctx.fillText(state.nickname?`CARAT · ${state.nickname}`:'CARAT · MY RECAP',pad,255);ctx.fillText('총 지출 · KRW 환산',pad,330);ctx.fillStyle='#151515';ctx.font='700 52px sans-serif';ctx.fillText(money(total),pad,400);ctx.font='600 25px sans-serif';ctx.fillText(`관람 ${chosen.length}회   ·   국가 ${new Set(chosen.map(e=>e.country)).size}개`,pad,462);
+      let y=535;ctx.font='700 24px sans-serif';ctx.fillText('MONTHLY RECAP',pad,y);y+=36;const max=Math.max(1,...Array.from({length:12},(_,i)=>chosen.filter(e=>monthOf(e)===i+1).reduce((s,e)=>s+localToKrw(e.price,e.currency||COUNTRIES.find(c=>c.id===e.country).currency),0)));for(let m=1;m<=12;m++){const es=chosen.filter(e=>monthOf(e)===m),sum=es.reduce((s,e)=>s+localToKrw(e.price,e.currency||COUNTRIES.find(c=>c.id===e.country).currency),0);ctx.fillStyle='#151515';ctx.font='20px sans-serif';ctx.textAlign='left';ctx.fillText(`${String(m).padStart(2,'0')}월`,pad,y+18);ctx.fillStyle='#eee';ctx.fillRect(pad+78,y,w-pad*2-180,16);ctx.fillStyle='#151515';ctx.fillRect(pad+78,y,(w-pad*2-180)*sum/max,16);ctx.textAlign='right';ctx.fillText(`${es.length}회`,w-pad,y+18);y+=37;}
+      y+=25;ctx.textAlign='left';ctx.font='700 24px sans-serif';ctx.fillText('SELECTED EVENTS',pad,y);y+=36;ctx.font='19px sans-serif';chosen.slice(0,8).forEach(e=>{const c=COUNTRIES.find(x=>x.id===e.country);ctx.fillStyle='#151515';ctx.fillText(`${e.date.slice(5)}  ${c.flag} ${e.title}`.slice(0,46),pad,y);ctx.textAlign='right';ctx.fillText(money(localToKrw(e.price,e.currency||c.currency)),w-pad,y);ctx.textAlign='left';y+=34;});if(chosen.length>8){ctx.fillStyle='#696969';ctx.fillText(`외 ${chosen.length-8}건`,pad,y);y+=34;}ctx.strokeStyle='#ddd';ctx.beginPath();ctx.moveTo(pad,h-100);ctx.lineTo(w-pad,h-100);ctx.stroke();ctx.fillStyle='#777';ctx.font='17px sans-serif';ctx.textAlign='center';ctx.fillText('SEVENTEEN · 2026 RECAP  |  FX reference 2026.11.26',w/2,h-62);return canvas;}
+    $('previewButton').onclick=()=>{$('previewDialog').showModal();receiptCanvas()};$('closePreview').onclick=()=>$('previewDialog').close();$('previewDialog').addEventListener('click',e=>{if(e.target===$('previewDialog'))$('previewDialog').close()});
+    $('downloadPng').onclick=()=>{receiptCanvas().toBlob(blob=>{if(!blob){alert('이미지를 만들지 못했어요.');return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='seventeen-recap-2026.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);},'image/png')};
+    $('shareImage').onclick=async()=>{const canvas=receiptCanvas();canvas.toBlob(async blob=>{if(!blob)return;const file=new File([blob],'seventeen-recap-2026.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'SEVENTEEN 2026 공연 리캡'})}catch(_){}}else alert('이 브라우저는 이미지 공유를 지원하지 않아요. PNG 이미지 저장을 이용해 주세요.');},'image/png')};
+    populateForm();let restored=loadHash();if(!restored){try{const saved=JSON.parse(localStorage.getItem('svt-recap-2026')||'null');if(saved&&Array.isArray(saved.events)){state.events=saved.events.filter(e=>e&&/^2026-\d\d-\d\d$/.test(e.date)&&COUNTRIES.some(c=>c.id===e.country)&&CATEGORIES.includes(e.category)).map(e=>({...e,id:e.id||makeId(),price:Math.max(0,Number(e.price)||0)}));state.nickname=String(saved.nickname||'').slice(0,24)}}catch(_){}}
+    render();
+  })();
+  </script>
+</body>
+</html>
