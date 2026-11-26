@@ -68,7 +68,42 @@ function renderReceipt(){
   $('selectedEvents').innerHTML=picked.length?picked.map(item=>`<div class="selected-line"><span>${escapeHtml(item.date.slice(5))} · ${escapeHtml(item.title)}</span><b>${money(asKrw(item.price,item.unit),'KRW')}</b></div>`).join(''):'<p>선택한 공연이 없습니다.</p>';
 }
 function render(){renderFilters();renderEvents();renderReceipt();persist()}
-function selectFromShare(){if(!location.hash)return;try{const data=JSON.parse(decodeURIComponent(location.hash.slice(1)));data.events?.forEach(([id,grade,price,unit])=>{const item=events.find(event=>event.id===id);if(item)Object.assign(item,{selected:true,grade:Number(grade)||0,price:Number(price)||0,unit:unit||item.currency})});$('nickname').value=data.nickname||''}catch(_){}}
+
+// Compact the shared selection with a small LZ-style dictionary encoding.
+function compressShareData(data){
+  const input=JSON.stringify(data),dict=new Map(),output=[];
+  let phrase='';
+  for(const char of input){
+    const next=phrase+char;
+    if(dict.has(next)){phrase=next;continue}
+    output.push(phrase?dict.get(phrase):char.charCodeAt(0));
+    dict.set(next,256+dict.size);phrase=char;
+  }
+  if(phrase)output.push(dict.has(phrase)?dict.get(phrase):phrase.charCodeAt(0));
+  const bytes=[];output.forEach(code=>{bytes.push(code&255,(code>>8)&255)});
+  let binary='';for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.slice(i,i+0x8000));
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decompressShareData(encoded){
+  const base64=encoded.replace(/-/g,'+').replace(/_/g,'/');
+  const binary=atob(base64+'='.repeat((4-base64.length%4)%4)),codes=[];
+  for(let i=0;i<binary.length;i+=2)codes.push(binary.charCodeAt(i)|(binary.charCodeAt(i+1)<<8));
+  const dict=Array.from({length:256},(_,i)=>String.fromCharCode(i));
+  let previous=String.fromCharCode(codes[0]),result=previous;
+  for(let i=1;i<codes.length;i++){
+    const code=codes[i],entry=dict[code]??(previous+previous[0]);
+    result+=entry;dict.push(previous+entry[0]);previous=entry;
+  }
+  return JSON.parse(result);
+}
+function selectFromShare(){
+  const hash=location.hash.slice(1);if(!hash)return;
+  try{
+    const data=hash.startsWith('s=')?decompressShareData(hash.slice(2)):JSON.parse(decodeURIComponent(hash));
+    data.events?.forEach(([id,grade,price,unit])=>{const item=events.find(event=>event.id===id);if(item)Object.assign(item,{selected:true,grade:Number(grade)||0,price:Number(price)||0,unit:unit||item.currency})});
+    $('nickname').value=data.nickname||'';
+  }catch(error){console.warn('공유 정보를 읽지 못했습니다.',error)}
+}
 document.addEventListener('click',event=>{
   const target=event.target,countryButton=target.closest('[data-country]'),gradeButton=target.closest('[data-grade]');
   if(countryButton){const id=countryButton.dataset.country;state.countries.has(id)?state.countries.delete(id):state.countries.add(id);render()}
@@ -90,5 +125,11 @@ $('allCountries').onclick=()=>{state.countries=new Set(cfg.countries.map(item=>i
 $('clearCountries').onclick=()=>{state.countries.clear();render()};
 $('nickname').oninput=persist;
 $('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textContent=$('receipt').hidden?'완료':'공연 목록 수정';if(!$('receipt').hidden)$('receipt').scrollIntoView({behavior:'smooth'})};
-$('share').onclick=async()=>{const selected=events.filter(item=>item.selected).map(item=>[item.id,item.grade,item.price,item.unit]);const url=location.href.split('#')[0]+'#'+encodeURIComponent(JSON.stringify({events:selected,nickname:$('nickname').value}));try{await navigator.clipboard.writeText(url);alert('공유 링크를 복사했어요.')}catch(_){prompt('공유 링크를 복사해 주세요.',url)}};
+$('share').onclick=async()=>{
+  const selected=events.filter(item=>item.selected).map(item=>[item.id,item.grade,item.price,item.unit]);
+  const nickname=$('nickname').value;
+  const compressed=compressShareData({events:selected,nickname});
+  const url=`${location.href.split('#')[0]}#s=${compressed}`;
+  try{await navigator.clipboard.writeText(url);alert('짧은 공유 링크를 복사했어요.')}catch(_){prompt('공유 링크를 복사해 주세요.',url)}
+};
 (async()=>{try{const response=await fetch('data/events.json');if(!response.ok)throw Error('schedule unavailable');cfg=await response.json();expandEvents();state.countries=new Set(cfg.countries.map(item=>item[0]));state.categories=new Set(Object.keys(cfg.categories));const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved){saved.events?.forEach(data=>{const item=events.find(event=>event.id===data.id);if(item)Object.assign(item,{selected:!!data.selected,grade:Number(data.grade)||0,price:Number(data.price)||0,unit:data.unit||item.currency})});$('nickname').value=saved.nickname||''}selectFromShare();render()}catch(error){$('events').innerHTML='<div class="empty">일정 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.</div>';console.error(error)}})();
