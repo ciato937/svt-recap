@@ -6,9 +6,11 @@
   <meta name="theme-color" content="#fff">
   <title>2026 SEVENTEEN 공연 리캡</title>
   <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="receipt-enhancements.css?v=1">
   <script src="jp-ticket-options.js?v=1" defer></script>
   <script src="app.js?v=5" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
+  <script src="receipt-enhancements.js?v=1" defer></script>
 </head>
 <body>
   <header>
@@ -46,8 +48,13 @@
         <label class="nickname-label">닉네임 (선택)<input id="nickname" maxlength="24" placeholder="닉네임"></label>
         <div class="receipt-total"><span>총 지출 · KRW 환산</span><strong id="total">₩0</strong><small id="visitCount">관람 0회 · 국가 0개</small></div>
         <div class="receipt-divider"><span>✦</span></div>
+        <section class="monthly-summary" aria-labelledby="monthlySummaryTitle">
+          <h3 id="monthlySummaryTitle">월별 관람 · 지출</h3>
+          <div id="monthlySummary"></div>
+        </section>
         <h3>함께한 공연</h3>
         <div id="selectedEvents" class="receipt-events"></div>
+        <button id="saveReceiptImage" class="receipt-share" type="button">이미지로 저장</button>
         <button id="share" class="receipt-share" type="button">공유 링크 복사</button>
         <p class="receipt-footnote">당신의 2026년을 함께한 순간들</p>
       </aside>
