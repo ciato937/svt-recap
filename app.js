@@ -132,4 +132,18 @@ $('share').onclick=async()=>{
   const url=`${location.href.split('#')[0]}#s=${compressed}`;
   try{await navigator.clipboard.writeText(url);alert('짧은 공유 링크를 복사했어요.')}catch(_){prompt('공유 링크를 복사해 주세요.',url)}
 };
-(async()=>{try{const response=await fetch('data/events.json');if(!response.ok)throw Error('schedule unavailable');cfg=await response.json();expandEvents();state.countries=new Set(cfg.countries.map(item=>item[0]));state.categories=new Set(Object.keys(cfg.categories));const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved){saved.events?.forEach(data=>{const item=events.find(event=>event.id===data.id);if(item)Object.assign(item,{selected:!!data.selected,grade:Number(data.grade)||0,price:Number(data.price)||0,unit:data.unit||item.currency})});$('nickname').value=saved.nickname||''}selectFromShare();render()}catch(error){$('events').innerHTML='<div class="empty">일정 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.</div>';console.error(error)}})();
+(async()=>{
+  try{
+    if(location.protocol==='file:')throw Error('HTML 파일을 직접 열면 브라우저가 JSON을 불러올 수 없습니다. 로컬 웹 서버에서 실행해 주세요.');
+    const scheduleUrl=new URL('data/events.json',document.baseURI);
+    const response=await fetch(scheduleUrl.href);
+    if(!response.ok)throw Error(`${scheduleUrl.pathname} 요청 실패 (HTTP ${response.status})`);
+    try{cfg=await response.json()}catch(error){throw Error(`${scheduleUrl.pathname} JSON 파싱 실패: ${error.message}`)}
+    if(!cfg||!Array.isArray(cfg.countries)||!cfg.categories||!cfg.rates||!Array.isArray(cfg.events))throw Error(`${scheduleUrl.pathname} 데이터 형식이 올바르지 않습니다.`);
+    expandEvents();state.countries=new Set(cfg.countries.map(item=>item[0]));state.categories=new Set(Object.keys(cfg.categories));const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved){saved.events?.forEach(data=>{const item=events.find(event=>event.id===data.id);if(item)Object.assign(item,{selected:!!data.selected,grade:Number(data.grade)||0,price:Number(data.price)||0,unit:data.unit||item.currency})});$('nickname').value=saved.nickname||''}selectFromShare();render()
+  }catch(error){
+    const message=error instanceof Error?error.message:String(error);
+    $('events').innerHTML=`<div class="empty">일정 데이터를 불러오지 못했습니다. ${escapeHtml(message)}</div>`;
+    console.error('일정 데이터 로딩 실패:',error);
+  }
+})();
