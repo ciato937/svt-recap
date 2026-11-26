@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="receipt-layout-overrides.css?v=1">
   <link rel="stylesheet" href="travel-location.css?v=4">
   <script src="jp-ticket-options.js?v=1" defer></script>
-  <script src="app.js?v=14" defer></script>
+  <script src="app.js?v=16" defer></script>
   <script src="random-nickname.js?v=2" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
   <script src="receipt-enhancements.js?v=3" defer></script>
@@ -54,12 +54,12 @@
           <h3 id="travelTitle">공연 이동 거리</h3>
           <label for="homeAddressInput">출발지</label>
           <div class="travel-controls">
-            <input id="homeAddressInput" type="text" placeholder="출발지 입력 (예: 경기도 군포시)">
+            <input id="homeAddressInput" type="text" placeholder="출발지 입력 (예: 서울 강남구, 부산 해운대구)">
             <button id="setHomeAddress" type="button">주소 설정</button>
             <button id="currentGpsButton" type="button">📍 현위치</button>
           </div>
           <p id="routeStatusMsg" role="status" aria-live="polite">출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.</p>
-          <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. GPS 좌표는 위치명 확인을 위해 검색 서비스에 전달됩니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
+          <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. 국내 시·구와 주요 도시 주소는 내장된 대표 좌표로 계산하며, 정확한 번지 좌표가 아닐 수 있습니다. 내장 목록에 없는 출발지 주소만 OpenStreetMap에서 검색합니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
           <div id="travelSummary" aria-live="polite"></div>
         </section>
         <div class="receipt-divider"><span>✦</span></div>
