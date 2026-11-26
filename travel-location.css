@@ -1,5 +1,6 @@
-.travel-panel h2{margin:0 0 8px;font-size:15px}
-.travel-panel>label{display:block;margin-bottom:5px;color:var(--muted);font-size:12px}
+.receipt-travel{margin:14px 0;text-align:left}
+.receipt-travel h3{margin:0 0 8px;font-size:13px}
+.receipt-travel>label{display:block;margin-bottom:5px;color:var(--muted);font-size:12px}
 .travel-controls{display:flex;gap:6px;flex-wrap:wrap}
 .travel-controls input{flex:1 1 190px;min-width:0;height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:#fff}
 .travel-controls button{min-height:42px;font-size:12px;white-space:nowrap}

@@ -8,9 +8,9 @@
   <link rel="stylesheet" href="styles.css?v=6">
   <link rel="stylesheet" href="receipt-enhancements.css?v=2">
   <link rel="stylesheet" href="receipt-layout-overrides.css?v=1">
-  <link rel="stylesheet" href="travel-location.css?v=3">
+  <link rel="stylesheet" href="travel-location.css?v=4">
   <script src="jp-ticket-options.js?v=1" defer></script>
-  <script src="app.js?v=12" defer></script>
+  <script src="app.js?v=13" defer></script>
   <script src="random-nickname.js?v=2" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
   <script src="receipt-enhancements.js?v=3" defer></script>
@@ -29,18 +29,6 @@
         <section class="panel">
           <div class="heading"><h2>국가 / 지역</h2><div><button id="allCountries" type="button">전체 선택</button> <button id="clearCountries" type="button">전체 해제</button></div></div>
           <div id="countries" class="countries"></div>
-        </section>
-        <section class="panel travel-panel" aria-labelledby="travelTitle">
-          <h2 id="travelTitle">공연 이동 거리</h2>
-          <label for="homeAddressInput">출발지</label>
-          <div class="travel-controls">
-            <input id="homeAddressInput" type="text" placeholder="출발지 입력 (예: 경기도 군포시)">
-            <button id="setHomeAddress" type="button">주소 설정</button>
-            <button id="currentGpsButton" type="button">📍 현위치</button>
-          </div>
-          <p id="routeStatusMsg" role="status" aria-live="polite">출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.</p>
-          <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. GPS 좌표는 위치명 확인을 위해 검색 서비스에 전달됩니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
-          <div id="travelSummary" aria-live="polite"></div>
         </section>
         <section class="panel filter-row">
           <h2>월별 필터</h2>
@@ -62,6 +50,18 @@
         <h2 id="receiptTitle">공연 영수증</h2>
         <label class="nickname-label">닉네임 (선택)<input id="nickname" maxlength="24" placeholder="예: 캐럿의 별빛"></label>
         <div class="receipt-total"><span>총 지출 · KRW 환산</span><strong id="total">₩0</strong><small id="visitCount">관람 0회 · 국가 0개</small></div>
+        <section class="receipt-travel" aria-labelledby="travelTitle">
+          <h3 id="travelTitle">공연 이동 거리</h3>
+          <label for="homeAddressInput">출발지</label>
+          <div class="travel-controls">
+            <input id="homeAddressInput" type="text" placeholder="출발지 입력 (예: 경기도 군포시)">
+            <button id="setHomeAddress" type="button">주소 설정</button>
+            <button id="currentGpsButton" type="button">📍 현위치</button>
+          </div>
+          <p id="routeStatusMsg" role="status" aria-live="polite">출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.</p>
+          <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. GPS 좌표는 위치명 확인을 위해 검색 서비스에 전달됩니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
+          <div id="travelSummary" aria-live="polite"></div>
+        </section>
         <div class="receipt-divider"><span>✦</span></div>
         <section class="monthly-summary" aria-labelledby="monthlySummaryTitle">
           <h3 id="monthlySummaryTitle">월별 관람 · 지출</h3>

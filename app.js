@@ -141,6 +141,7 @@ function lookupVenueCoordinates(item){
 }
 async function renderTravelSummary(){
   const renderId=++travelRenderId,summary=$('travelSummary');
+  if($('receipt').hidden)return;
   if(!homeLocation){summary.textContent='출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.';$('routeStatusMsg').textContent='출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.';return}
   const selected=events.filter(item=>item.selected);
   if(!selected.length){summary.textContent='공연을 선택하면 왕복 거리를 계산합니다.';$('routeStatusMsg').textContent=`출발지: ${homeLocation.label}`;return}
@@ -179,7 +180,7 @@ function renderEvents(){
   $('count').textContent=`표시 ${list.length}건 · 선택 ${events.filter(item=>item.selected).length}건`;
   $('events').innerHTML=list.length?list.map(item=>{
     const c=country(item.country),memberList=item.members;
-    return `<article class="event ${item.selected?'selected':''}"><input type="checkbox" data-select="${escapeHtml(item.id)}" ${item.selected?'checked':''} aria-label="공연 선택"><div><div class="date">${escapeHtml(item.date)} · ${escapeHtml(c?.[2]||'')} ${escapeHtml(c?.[1]||'')}</div><div class="title">${escapeHtml(item.title)}</div><div class="meta">${escapeHtml(item.artist)} · ${escapeHtml(cfg.categories[item.category])}</div><div class="venue">${escapeHtml(item.venue)}</div><div class="event-members" data-members="${escapeHtml(memberList.join('|'))}">참여 멤버 · ${memberList.map(escapeHtml).join(', ')}</div><div class="ticket-heading"><div class="grades">${item.options.map((option,index)=>`<button type="button" class="grade ${item.grade===index?'active':''}" data-grade="${escapeHtml(item.id)}" data-index="${index}">${escapeHtml(option.name)}${option.price?` · ${money(option.price,item.currency)}`:''}</button>`).join('')}</div></div></div></article>`;
+    return `<article class="event ${item.selected?'selected':''}"><input type="checkbox" data-select="${escapeHtml(item.id)}" ${item.selected?'checked':''} aria-label="공연 선택"><div><div class="date">${escapeHtml(item.date)} · ${escapeHtml(c?.[2]||'')} ${escapeHtml(c?.[1]||'')}</div><div class="title">${escapeHtml(item.title)}</div><div class="meta">${escapeHtml(item.artist)} · ${escapeHtml(cfg.categories[item.category])}</div><div class="venue">${escapeHtml(item.venue)}</div><div class="event-members" data-members="${escapeHtml(memberList.join('|'))}" hidden></div><div class="ticket-heading"><div class="grades">${item.options.map((option,index)=>`<button type="button" class="grade ${item.grade===index?'active':''}" data-grade="${escapeHtml(item.id)}" data-index="${index}">${escapeHtml(option.name)}${option.price?` · ${money(option.price,item.currency)}`:''}</button>`).join('')}</div></div></div></article>`;
   }).join(''):'<div class="empty">선택한 필터에 해당하는 공연이 없습니다.</div>';
 }
 function renderReceipt(){
@@ -280,7 +281,7 @@ document.addEventListener('change',event=>{
 $('allCountries').onclick=()=>{state.countries=new Set(cfg.countries.map(item=>item[0]));render()};
 $('clearCountries').onclick=()=>{state.countries.clear();render()};
 $('nickname').oninput=persist;
-$('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textContent=$('receipt').hidden?'완료':'공연 목록 수정';if(!$('receipt').hidden)$('receipt').scrollIntoView({behavior:'smooth'})};
+$('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textContent=$('receipt').hidden?'완료':'공연 목록 수정';if(!$('receipt').hidden){$('receipt').scrollIntoView({behavior:'smooth'});renderTravelSummary()}else travelRenderId++};
 (async()=>{
   try{
     if(location.protocol==='file:')throw Error('HTML 파일을 직접 열면 브라우저가 JSON을 불러올 수 없습니다. 로컬 웹 서버에서 실행해 주세요.');
