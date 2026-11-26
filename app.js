@@ -272,18 +272,21 @@ function expandEvents(){
     const [mm,dd]=md.split('-');
     const options=group[7].split(',').map(label=>{const colon=label.lastIndexOf(':');return{name:label.slice(0,colon),price:Number(label.slice(colon+1))||0}});
     const title=group[4],members=membersForGroup(group,title);
-    events.push({id:`${group[1]}-${md}-${events.length}`,date:`2026-${mm}-${dd}`,country:group[1],category:group[2],artist:group[3],title,venue:group[5],currency:group[6],options,grade:0,price:options[0].price,unit:group[6],members,selected:false,editing:false});
+    events.push({id:group[9]||`${group[1]}-${md}-${events.length}`,date:`2026-${mm}-${dd}`,country:group[1],category:group[2],artist:group[3],title,venue:group[5],currency:group[6],options,grade:0,price:options[0].price,unit:group[6],members,selected:false,editing:false});
   }));
 }
-function visibleEvents(){return events.filter(item=>Array.isArray(item.members)&&item.members.length>0&&state.countries.has(item.country)&&state.months.has(month(item))&&state.categories.has(item.category))}
-function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({events:events.map(item=>({id:item.id,selected:item.selected,grade:item.grade,price:item.price,unit:item.unit})),nickname:$('nickname').value}))}catch(_){}}
+function visibleEvents(){return events.filter(item=>Array.isArray(item.members)&&item.members.length>0&&state.countries.has(item.country)&&state.months.has(month(item))&&state.categories.has(item.category)).sort((a,b)=>a.date.localeCompare(b.date))}
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({events:events.map(item=>({id:item.id,selected:item.selected,grade:item.grade,price:item.price,unit:item.unit}))}))}catch(_){}}
 function renderFilters(){
   $('countries').innerHTML=cfg.countries.map(c=>`<button class="country" data-country="${escapeHtml(c[0])}" aria-pressed="${state.countries.has(c[0])}">${escapeHtml(c[2])} ${escapeHtml(c[1])}</button>`).join('');
+  const allCountriesSelected=cfg.countries.every(c=>state.countries.has(c[0]));
+  $('allCountries').textContent=allCountriesSelected?'지역 선택 해제':'지역 모두 선택';
   $('months').innerHTML=`<label class="option"><input type="checkbox" data-all-months ${state.months.size===12?'checked':''}>전체 선택</label>`+allMonths().map(m=>`<label class="option"><input type="checkbox" data-month="${m}" ${state.months.has(m)?'checked':''}>${m}월</label>`).join('');
-  $('categories').innerHTML=`<label class="option"><input type="checkbox" data-all-categories ${state.categories.size===Object.keys(cfg.categories).length?'checked':''}>전체 선택</label>`+Object.entries(cfg.categories).map(([key,label])=>`<label class="option"><input type="checkbox" data-category="${escapeHtml(key)}" ${state.categories.has(key)?'checked':''}>${escapeHtml(label)}</label>`).join('');
-  const months=[...state.months].sort((a,b)=>a-b),categories=[...state.categories];
+  const categoryEntries=Object.entries(cfg.categories);
+  const allCategoriesSelected=state.categories.size===categoryEntries.length;
+  $('categories').innerHTML=`<button type="button" class="filter-chip" data-all-categories aria-pressed="${allCategoriesSelected}">전체</button>`+categoryEntries.map(([key,label])=>`<button type="button" class="filter-chip" data-category="${escapeHtml(key)}" aria-pressed="${state.categories.has(key)}">${escapeHtml(label)}</button>`).join('');
+  const months=[...state.months].sort((a,b)=>a-b);
   $('monthSummary').textContent=months.length===12?'전체 12개월':months.length?months.map(m=>`${m}월`).join(', '):'월 선택 안 함';
-  $('categorySummary').textContent=categories.length===Object.keys(cfg.categories).length?'전체 유형':categories.length?categories.map(key=>cfg.categories[key]).join(', '):'유형 선택 안 함';
 }
 function loadTravelLocation(){
   try{
@@ -410,7 +413,11 @@ function renderTravelSummary(){
 }
 function renderEvents(){
   const list=visibleEvents();
-  $('count').textContent=`표시 ${list.length}건 · 선택 ${events.filter(item=>item.selected).length}건`;
+  const selectedVisible=list.filter(item=>item.selected).length;
+  const selectVisibleButton=$('selectVisibleEvents');
+  $('count').textContent=`현재 목록 ${list.length}건 · 선택 ${selectedVisible}건`;
+  selectVisibleButton.textContent=list.length>0&&selectedVisible===list.length?'현재 목록 선택 해제':'현재 목록 모두 선택';
+  selectVisibleButton.disabled=list.length===0;
   $('events').innerHTML=list.length?list.map(item=>{
     const c=country(item.country),memberList=item.members;
     return `<article class="event ${item.selected?'selected':''}"><input type="checkbox" data-select="${escapeHtml(item.id)}" ${item.selected?'checked':''} aria-label="공연 선택"><div><div class="date">${escapeHtml(item.date)} · ${escapeHtml(c?.[2]||'')} ${escapeHtml(c?.[1]||'')}</div><div class="title">${escapeHtml(item.title)}</div><div class="meta">${escapeHtml(item.artist)} · ${escapeHtml(cfg.categories[item.category])}</div><div class="venue">${escapeHtml(item.venue)}</div><div class="event-members" data-members="${escapeHtml(memberList.join('|'))}" hidden></div><div class="ticket-heading"><div class="grades">${item.options.map((option,index)=>`<button type="button" class="grade ${item.grade===index?'active':''}" data-grade="${escapeHtml(item.id)}" data-index="${index}">${escapeHtml(option.name)}${option.price?` · ${money(option.price,item.currency)}`:''}</button>`).join('')}</div></div></div></article>`;
@@ -468,25 +475,21 @@ $('setHomeAddress').addEventListener('click',updateHomeFromAddress);
 $('currentGpsButton').addEventListener('click',useCurrentGPSLocation);
 $('homeAddressInput').addEventListener('keydown',event=>{if(event.key==='Enter')updateHomeFromAddress()});
 document.addEventListener('click',event=>{
-  const target=event.target,countryButton=target.closest('[data-country]'),gradeButton=target.closest('[data-grade]');
+  const target=event.target,countryButton=target.closest('[data-country]'),categoryButton=target.closest('#categories [data-category], #categories [data-all-categories]'),gradeButton=target.closest('[data-grade]');
   if(countryButton){const id=countryButton.dataset.country;state.countries.has(id)?state.countries.delete(id):state.countries.add(id);render()}
+  if(categoryButton){if(categoryButton.hasAttribute('data-all-categories')){const allSelected=state.categories.size===Object.keys(cfg.categories).length;state.categories=allSelected?new Set():new Set(Object.keys(cfg.categories))}else{const id=categoryButton.dataset.category;state.categories.has(id)?state.categories.delete(id):state.categories.add(id)}render()}
   if(gradeButton){const item=events.find(event=>event.id===gradeButton.dataset.grade);if(item){item.grade=Number(gradeButton.dataset.index);item.price=item.options[item.grade].price;item.unit=item.currency;item.editing=false;render()}}
-  if(target.closest('#selectVisibleEvents')){visibleEvents().forEach(item=>item.selected=true);render()}
-  if(target.closest('#clearVisibleEvents')){visibleEvents().forEach(item=>item.selected=false);render()}
+  if(target.closest('#selectVisibleEvents')){const list=visibleEvents(),clear=list.length>0&&list.every(item=>item.selected);list.forEach(item=>item.selected=!clear);render()}
 });
 document.addEventListener('change',event=>{
   const input=event.target;
   if(input.matches('[data-all-months]'))state.months=input.checked?new Set(allMonths()):new Set();
   else if(input.matches('[data-month]'))input.checked?state.months.add(Number(input.dataset.month)):state.months.delete(Number(input.dataset.month));
-  else if(input.matches('[data-all-categories]'))state.categories=input.checked?new Set(Object.keys(cfg.categories)):new Set();
-  else if(input.matches('[data-category]'))input.checked?state.categories.add(input.dataset.category):state.categories.delete(input.dataset.category);
   else if(input.matches('[data-select]')){const item=events.find(event=>event.id===input.dataset.select);if(item)item.selected=input.checked}
   else return;
   render();
 });
-$('allCountries').onclick=()=>{state.countries=new Set(cfg.countries.map(item=>item[0]));render()};
-$('clearCountries').onclick=()=>{state.countries.clear();render()};
-$('nickname').oninput=persist;
+$('allCountries').onclick=()=>{const allSelected=cfg.countries.every(item=>state.countries.has(item[0]));state.countries=allSelected?new Set():new Set(cfg.countries.map(item=>item[0]));render()};
 $('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textContent=$('receipt').hidden?'완료':'공연 목록 수정';if(!$('receipt').hidden){$('receipt').scrollIntoView({behavior:'smooth'});renderTravelSummary()}};
 (async()=>{
   try{
@@ -496,7 +499,7 @@ $('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textCo
     if(!response.ok)throw Error(`${scheduleUrl.pathname} 요청 실패 (HTTP ${response.status})`);
     try{cfg=await response.json()}catch(error){throw Error(`${scheduleUrl.pathname} JSON 파싱 실패: ${error.message}`)}
     if(!cfg||!Array.isArray(cfg.countries)||!cfg.categories||!cfg.rates||!Array.isArray(cfg.events))throw Error(`${scheduleUrl.pathname} 데이터 형식이 올바르지 않습니다.`);
-    expandEvents();state.countries=new Set(cfg.countries.map(item=>item[0]));state.categories=new Set(Object.keys(cfg.categories));const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved){saved.events?.forEach(data=>{const item=events.find(event=>event.id===data.id);if(item)Object.assign(item,{selected:!!data.selected,grade:Number(data.grade)||0,price:Number(data.price)||0,unit:data.unit||item.currency})});$('nickname').value=saved.nickname||''}render()
+    expandEvents();state.countries=new Set(cfg.countries.map(item=>item[0]));state.categories=new Set(Object.keys(cfg.categories));const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved){saved.events?.forEach(data=>{const item=events.find(event=>event.id===data.id);if(item)Object.assign(item,{selected:!!data.selected,grade:Number(data.grade)||0,price:Number(data.price)||0,unit:data.unit||item.currency})})}render()
   }catch(error){
     const message=error instanceof Error?error.message:String(error);
     $('events').innerHTML=`<div class="empty">일정 데이터를 불러오지 못했습니다. ${escapeHtml(message)}</div>`;

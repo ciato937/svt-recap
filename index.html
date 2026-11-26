@@ -4,42 +4,42 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fff">
-  <title>2026 SEVENTEEN 공연 리캡</title>
+  <title>세븐틴과 함께한 2026 · 공연 리캡</title>
   <link rel="stylesheet" href="styles.css?v=6">
   <link rel="stylesheet" href="receipt-enhancements.css?v=2">
   <link rel="stylesheet" href="receipt-layout-overrides.css?v=1">
   <link rel="stylesheet" href="travel-location.css?v=4">
+  <link rel="stylesheet" href="design-refresh.css?v=10">
   <script src="jp-ticket-options.js?v=1" defer></script>
-  <script src="app.js?v=18" defer></script>
-  <script src="random-nickname.js?v=2" defer></script>
+  <script src="app.js?v=22" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
-  <script src="receipt-enhancements.js?v=3" defer></script>
+  <script src="receipt-enhancements.js?v=7" defer></script>
 </head>
 <body>
   <header>
     <div class="wrap">
       <small>SEVENTEEN · YEAR IN REVIEW · 2026</small>
-      <h1>나의 공연 리캡</h1>
-      <p>공연 기록을 모아 나만의 리캡을 만들어 보세요.</p>
+      <h1>세븐틴과 함께한 2026</h1>
+      <p>공연의 순간과 지출을 한곳에 모아, 올해의 기록을 한눈에 살펴보세요.</p>
     </div>
   </header>
   <main class="wrap">
     <div class="columns">
       <section>
         <section class="panel">
-          <div class="heading"><h2>국가 / 지역</h2><div><button id="allCountries" type="button">전체 선택</button> <button id="clearCountries" type="button">전체 해제</button></div></div>
+          <div class="heading"><h2>국가 / 지역</h2><div class="country-actions"><button id="allCountries" type="button">지역 모두 선택</button></div></div>
           <div id="countries" class="countries"></div>
         </section>
         <section class="panel filter-row">
           <h2>월별 필터</h2>
           <details><summary id="monthSummary">전체 12개월</summary><div id="months" class="menu"></div></details>
         </section>
-        <section class="panel filter-row">
+        <section class="panel filter-row category-filter">
           <h2>공연 유형</h2>
-          <details><summary id="categorySummary">전체 유형</summary><div id="categories" class="menu"></div></details>
+          <div id="categories" class="filter-chips" role="group" aria-label="공연 유형"></div>
         </section>
         <section class="panel">
-          <div class="heading"><h2>공연 목록</h2><div class="event-actions"><span id="count" role="status" aria-live="polite"></span><button id="selectVisibleEvents" type="button">공연 전체 선택</button><button id="clearVisibleEvents" type="button">전체 해제</button></div></div>
+          <div class="heading"><h2>공연 목록</h2><div class="event-actions"><span id="count" role="status" aria-live="polite"></span><button id="selectVisibleEvents" type="button">현재 목록 모두 선택</button></div></div>
           <div id="events" class="events"></div>
         </section>
       </section>
@@ -48,7 +48,6 @@
         <div class="receipt-mark" aria-hidden="true">✦</div>
         <p class="receipt-kicker">YOUR CONCERT YEAR</p>
         <h2 id="receiptTitle">공연 영수증</h2>
-        <label class="nickname-label">닉네임 (선택)<input id="nickname" maxlength="24" placeholder="예: 캐럿의 별빛"></label>
         <div class="receipt-total"><span>총 지출 · KRW 환산</span><strong id="total">₩0</strong><small id="visitCount">관람 0회 · 국가 0개</small></div>
         <section class="receipt-travel" aria-labelledby="travelTitle">
           <h3 id="travelTitle">공연 이동 거리</h3>
@@ -59,16 +58,21 @@
             <button id="currentGpsButton" type="button">📍 현위치</button>
           </div>
           <p id="routeStatusMsg" role="status" aria-live="polite">출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.</p>
-          <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. 예상 시간은 국내 시속 55km, 해외 비행 시속 780km 기준입니다. 국내 시·구와 주요 도시 주소는 내장된 대표 좌표로 계산하며, 정확한 번지 좌표가 아닐 수 있습니다. 내장 목록에 없는 출발지 주소만 OpenStreetMap에서 검색합니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
-          <div id="travelSummary" aria-live="polite"></div>
+          <details class="travel-details">
+            <summary>거리 계산 상세</summary>
+            <div id="travelSummary" aria-live="polite"></div>
+            <p class="travel-note">선택한 공연 일정별 왕복 직선거리의 합계이며 실제 도로 거리와 다를 수 있습니다. 예상 시간은 국내 시속 55km, 해외 비행 시속 780km 기준입니다. 국내 시·구와 주요 도시 주소는 내장된 대표 좌표로 계산하며, 정확한 번지 좌표가 아닐 수 있습니다. 내장 목록에 없는 출발지 주소만 OpenStreetMap에서 검색합니다. 검색 데이터: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>.</p>
+          </details>
         </section>
         <div class="receipt-divider"><span>✦</span></div>
         <section class="monthly-summary" aria-labelledby="monthlySummaryTitle">
           <h3 id="monthlySummaryTitle">월별 관람 · 지출</h3>
           <div id="monthlySummary"></div>
         </section>
-        <h3>함께한 공연</h3>
-        <div id="selectedEvents" class="receipt-events"></div>
+        <section class="receipt-selected" aria-labelledby="selectedEventsTitle">
+          <h3 id="selectedEventsTitle">함께한 공연</h3>
+          <div id="selectedEvents" class="receipt-events"></div>
+        </section>
         <button id="saveReceiptImage" class="receipt-share" type="button">이미지로 저장</button>
         <p class="receipt-footnote">당신의 2026년을 함께한 순간들</p>
       </aside>
