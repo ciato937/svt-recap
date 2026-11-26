@@ -1,8 +1,37 @@
 (() => {
-  const firstWords=['캐럿','에스쿱스','정한','조슈아','준','호시','원우','우지','디에잇','민규','도겸','승관','버논','디노'];
-  const secondWords=['별빛','앙코르','우주','멜로디','추억','무대','약속','봄날','기억','하모니','반짝임','여정'];
+  const names=['캐럿','에스쿱스','정한','조슈아','준','호시','원우','우지','디에잇','민규','도겸','승관','버논','디노'];
+  const concepts=['별빛','앙코르','우주','멜로디','추억','무대','약속','봄날','기억','하모니','반짝임','여정','노래','꿈','파도','운명','섬광','바람','심장','달빛','새벽','시간','순간','청춘'];
+  const adjectives=['반짝이는','설레는','찬란한','다정한','신나는','용감한','빛나는','꿈꾸는','포근한','열정적인','소중한','행복한'];
+  const endings=['의 조각','과 함께','의 기록','의 하루','의 모험','의 속삭임'];
   const choose=items=>items[Math.floor(Math.random()*items.length)];
-  const makeNickname=()=>`${choose(firstWords)}의 ${choose(secondWords)}`;
+  const recent=new Set();
+
+  const makeNickname=()=>{
+    for(let attempt=0;attempt<12;attempt++){
+      const name=choose(names);
+      const concept=choose(concepts);
+      const templates=[
+        () => `${name}의 ${concept}`,
+        () => `${choose(adjectives)} ${name}`,
+        () => `${placeOf(name)}의 ${concept}`,
+        () => `${concept} 속 ${name}`,
+        () => `${name}${choose(endings)}`,
+        () => `${choose(adjectives)} ${concept} ${name}`,
+        () => `${name} · ${choose(concepts)}`
+      ];
+      const candidate=choose(templates)();
+      if(!recent.has(candidate)&&candidate.length<=24){
+        recent.add(candidate);
+        if(recent.size>40)recent.delete(recent.values().next().value);
+        return candidate;
+      }
+    }
+    return `${choose(names)}의 ${choose(concepts)}`;
+  };
+
+  function placeOf(){
+    return choose(['콘서트장','무대 위','하늘 아래','너란 은하','기억 속 바다','세븐틴 마당']);
+  }
 
   function setup(){
     const input=document.getElementById('nickname');
