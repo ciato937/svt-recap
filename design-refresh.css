@@ -180,4 +180,15 @@ main.wrap { width: min(100%, 1160px); padding: 24px 20px; }
   #receipt h2 { font-size: 25px !important; }
   #receipt .monthly-summary #monthlySummary { grid-template-columns: 1fr; }
 }
+@media (max-width: 600px) {
+  #receipt.receipt:not([hidden]) {
+    inset: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    width: auto;
+    max-height: none;
+    transform: none;
+    animation: receipt-mobile-in .2s ease-out;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@keyframes receipt-mobile-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { button, .event { transition: none; } }

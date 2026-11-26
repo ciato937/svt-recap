@@ -490,7 +490,7 @@ document.addEventListener('change',event=>{
   render();
 });
 $('allCountries').onclick=()=>{const allSelected=cfg.countries.every(item=>state.countries.has(item[0]));state.countries=allSelected?new Set():new Set(cfg.countries.map(item=>item[0]));render()};
-$('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textContent=$('receipt').hidden?'완료':'공연 목록 수정';if(!$('receipt').hidden){$('receipt').scrollIntoView({behavior:'smooth'});renderTravelSummary()}};
+$('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textContent=$('receipt').hidden?'완료':'공연 목록 수정';if(!$('receipt').hidden)renderTravelSummary()};
 (async()=>{
   try{
     if(location.protocol==='file:')throw Error('HTML 파일을 직접 열면 브라우저가 JSON을 불러올 수 없습니다. 로컬 웹 서버에서 실행해 주세요.');
