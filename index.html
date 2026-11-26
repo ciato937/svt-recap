@@ -1,11 +1,57 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fff"><title>2026 SEVENTEEN 공연 리캡</title><link rel="stylesheet" href="styles.css"><script src="app.js" defer></script></head><body>
-<header><div class="wrap"><small>SEVENTEEN · YEAR IN REVIEW · 2026</small><h1>나의 공연 리캡</h1><p>공연을 기록하고, 티켓 지출을 정리해 보세요.</p></div></header>
-<main class="wrap"><div class="columns"><section>
-<section class="panel"><div class="heading"><h2>국가 / 지역</h2><div><button id="allCountries">전체 선택</button> <button id="clearCountries">전체 해제</button></div></div><div id="countries" class="countries"></div></section>
-<section class="panel filter-row"><h2>월별 필터</h2><details><summary id="monthSummary">전체 12개월</summary><div id="months" class="menu"></div></details></section>
-<section class="panel filter-row"><h2>공연 유형</h2><details><summary id="categorySummary">전체 유형</summary><div id="categories" class="menu"></div></details></section>
-<section class="panel"><div class="heading"><h2>공연 목록</h2><span id="count"></span></div><div id="events" class="events"></div></section>
-</section><aside id="receipt" class="panel receipt" hidden><small>CARAT MEMORY · 2026</small><h2>공연 영수증</h2><label>닉네임 (선택)<input id="nickname" maxlength="24" placeholder="닉네임"></label><p>총 지출 · KRW 환산</p><strong id="total">₩0</strong><p id="visitCount">관람 0회 · 국가 0개</p><h3>선택한 공연</h3><div id="selectedEvents"></div><button id="share">공유 링크 복사</button></aside></div></main>
-<div class="sticky"><div><small id="stickyCount">선택한 공연 0회</small><strong id="stickyTotal">₩0</strong></div><button id="done">완료</button></div>
-</body></html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff">
+  <title>2026 SEVENTEEN 공연 리캡</title>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script src="app.js?v=3" defer></script>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <small>SEVENTEEN · YEAR IN REVIEW · 2026</small>
+      <h1>나의 공연 리캡</h1>
+      <p>공연을 기록하고, 티켓 지출을 정리해 보세요.</p>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="columns">
+      <section>
+        <section class="panel">
+          <div class="heading"><h2>국가 / 지역</h2><div><button id="allCountries" type="button">전체 선택</button> <button id="clearCountries" type="button">전체 해제</button></div></div>
+          <div id="countries" class="countries"></div>
+        </section>
+        <section class="panel filter-row">
+          <h2>월별 필터</h2>
+          <details><summary id="monthSummary">전체 12개월</summary><div id="months" class="menu"></div></details>
+        </section>
+        <section class="panel filter-row">
+          <h2>공연 유형</h2>
+          <details><summary id="categorySummary">전체 유형</summary><div id="categories" class="menu"></div></details>
+        </section>
+        <section class="panel">
+          <div class="heading"><h2>공연 목록</h2><span id="count"></span></div>
+          <div id="events" class="events"></div>
+        </section>
+      </section>
+      <aside id="receipt" class="panel receipt" hidden>
+        <small>CARAT MEMORY · 2026</small>
+        <h2>공연 영수증</h2>
+        <label>닉네임 (선택)<input id="nickname" maxlength="24" placeholder="닉네임"></label>
+        <p>총 지출 · KRW 환산</p>
+        <strong id="total">₩0</strong>
+        <p id="visitCount">관람 0회 · 국가 0개</p>
+        <h3>선택한 공연</h3>
+        <div id="selectedEvents"></div>
+        <button id="share" type="button">공유 링크 복사</button>
+      </aside>
+    </div>
+  </main>
+  <div class="sticky">
+    <div><small id="stickyCount">선택한 공연 0회</small><strong id="stickyTotal">₩0</strong></div>
+    <button id="done" type="button">완료</button>
+  </div>
+</body>
+</html>
