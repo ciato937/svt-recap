@@ -13,6 +13,7 @@ let homeLocation=null;
 let venueCoordinates=new Map();
 const pendingVenueLookups=new Map();
 let travelRenderId=0;
+let nominatimQueue=Promise.resolve();
 const TEAM_MEMBERS=['에스쿱스','조슈아','준','디에잇','민규','도겸','승관','버논','디노'];
 const MEMBERS_BY_TITLE={
   'CxM [DOUBLE UP] LIVE PARTY':['에스쿱스','민규'],
@@ -80,8 +81,9 @@ function distanceInKm(from,to){
   return 6371*2*Math.atan2(Math.sqrt(arc),Math.sqrt(1-arc));
 }
 function locationLabel(data,fallback){
-  const city=data?.city||data?.locality||data?.municipality||data?.county||data?.state||'';
-  const district=data?.district||data?.suburb||'';
+  const address=data?.address||data||{};
+  const city=address.city||address.town||address.village||address.locality||address.municipality||address.county||address.state||'';
+  const district=address.district||address.borough||address.suburb||'';
   return[city,district].filter(Boolean).join(' ')||data?.name||fallback;
 }
 async function photonSearch(query){
@@ -94,6 +96,22 @@ async function photonSearch(query){
     const [lng,lat]=feature.geometry?.coordinates||[];
     return Number.isFinite(lat)&&Number.isFinite(lng)?[{lat,lng,properties:feature.properties||{}}]:[];
   });
+}
+function requestNominatim(url){
+  const request=nominatimQueue.then(()=>fetch(url,{headers:{'Accept-Language':'ko,en'}}));
+  nominatimQueue=request.then(()=>new Promise(resolve=>setTimeout(resolve,1100)),()=>new Promise(resolve=>setTimeout(resolve,1100)));
+  return request;
+}
+async function nominatimSearch(query){
+  const url=new URL('https://nominatim.openstreetmap.org/search');
+  url.search=new URLSearchParams({format:'jsonv2',addressdetails:'1',limit:'1',q:query}).toString();
+  const response=await requestNominatim(url);
+  if(!response.ok)throw Error(`OpenStreetMap 검색 실패 (HTTP ${response.status})`);
+  const result=(await response.json())[0];
+  if(!result)return null;
+  const lat=Number(result.lat),lng=Number(result.lon);
+  if(!Number.isFinite(lat)||!Number.isFinite(lng))throw Error('OpenStreetMap 좌표 응답이 올바르지 않습니다.');
+  return{lat,lng,label:locationLabel(result,query)};
 }
 function featureLabel(feature){
   const properties=feature.properties||{};
@@ -110,21 +128,29 @@ function venueFeatureMatches(feature,venueName){
 async function lookupVenueCoordinatesDirect(item){
   const [city,venueName]=item.venue.split(' · ');
   const countryName=country(item.country)?.[1]||item.country;
+  const venueQuery=[venueName||item.venue,city,countryName].filter(Boolean).join(', ');
+  const cityQuery=[city||item.venue,countryName].join(', ');
   let venueResults=[],venueError;
-  try{venueResults=await photonSearch([venueName||item.venue,city,countryName].filter(Boolean).join(', '))}
+  try{venueResults=await photonSearch(venueQuery)}
   catch(error){venueError=error}
   const venueResult=venueResults.find(result=>venueFeatureMatches(result,venueName||item.venue));
   if(venueResult)return{...venueResult,precision:'venue',label:featureLabel(venueResult)||item.venue};
   let cityResults=[],cityError;
-  try{cityResults=await photonSearch([city||item.venue,countryName].join(', '))}
+  try{cityResults=await photonSearch(cityQuery)}
   catch(error){
     cityError=error;
-    if(!venueResults.length)throw Error(`공연장·도시 좌표를 검색하지 못했습니다: ${error.message}`);
   }
   if(cityResults[0])return{...cityResults[0],precision:'city',label:city||item.venue};
   if(!cityError&&venueResults[0])return{...venueResults[0],precision:'approx',label:featureLabel(venueResults[0])||item.venue};
-  if(cityError)throw Error(cityError.message);
-  if(venueError)throw Error(venueError.message);
+  const fallbackErrors=[];
+  for(const [query,precision,fallback] of [[venueQuery,'approx',item.venue],[cityQuery,'city',city||item.venue]]){
+    try{
+      const coords=await nominatimSearch(query);
+      if(coords)return{...coords,precision,label:precision==='city'?fallback:coords.label};
+    }catch(error){fallbackErrors.push(error.message)}
+  }
+  const errors=[venueError?.message,cityError?.message,...fallbackErrors].filter(Boolean);
+  if(errors.length)throw Error(`Photon·OpenStreetMap 좌표 검색에 실패했습니다: ${errors[errors.length-1]}`);
   return null;
 }
 function lookupVenueCoordinates(item){
