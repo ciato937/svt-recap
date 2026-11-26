@@ -90,7 +90,7 @@
   function addStyles(){
     if(document.getElementById('receiptRecapStyles'))return;
     const style=document.createElement('style');style.id='receiptRecapStyles';
-    style.textContent='.countries{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px}.recap-highlights{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 16px}.recap-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:78px;padding:10px;border:1px solid #e2ddd3;background:#f7f4ed;text-align:center}.recap-stat strong{font:700 29px/1.1 Georgia,"Noto Serif KR",serif;color:#514b40}.recap-stat span{margin-top:5px;font-size:11px;color:#777064}.receipt-total{padding:8px 4px!important}.receipt-total>strong{font-size:20px!important;font-weight:500!important;color:#777064!important}.receipt-total>span,.receipt-total>small{font-size:11px;color:#888071}.monthly-summary{margin:0 0 16px;text-align:left}.monthly-summary h3{margin:0 0 7px!important;font-size:13px}.monthly-summary #monthlySummary{display:flex;flex-wrap:wrap;gap:6px}.monthly-row{display:flex!important;flex:1 1 74px;align-items:center;justify-content:space-between;gap:6px;min-width:74px;padding:6px 8px!important;border:1px solid #e8e2d8!important;border-radius:4px;background:#faf9f6!important;font-size:10px!important}.monthly-name{font-weight:700;white-space:nowrap}.monthly-count{color:#514b40;white-space:nowrap}.member-summary{margin:0 0 16px;text-align:left}.member-summary h3{margin:0 0 7px!important;font-size:13px}.member-counts{display:flex;flex-wrap:wrap;gap:6px}.member-count{display:inline-flex;gap:7px;align-items:center;padding:5px 9px;border:1px solid #e2ddd3;background:#f7f4ed;font-size:11px}.member-count strong{color:#514b40}.grouped-line{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}.grouped-line>span{display:flex;flex-direction:column;min-width:0}.group-title{font-size:12px}.group-dates{font-size:9px;color:#888071;line-height:1.4}.group-count{font-size:10px;white-space:nowrap;color:#514b40}.grouped-line>strong{font-size:10px;color:#888071;white-space:nowrap}@media(max-width:420px){.countries{gap:5px}.country{padding:7px 4px;font-size:11px}}';
+    style.textContent='.countries{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px}.recap-highlights{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 16px}.recap-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:78px;padding:10px;border:1px solid #e2ddd3;background:#f7f4ed;text-align:center}.recap-stat strong{font:700 29px/1.1 Georgia,"Noto Serif KR",serif;color:#393744}.recap-stat span{margin-top:5px;font-size:11px;color:#777583}.receipt-total{padding:8px 4px!important}.receipt-total>strong{font-size:20px!important;font-weight:500!important;color:#777583!important}.receipt-total>span,.receipt-total>small{font-size:11px;color:#888071}.monthly-summary{margin:0 0 16px;text-align:left}.monthly-summary h3{margin:0 0 7px!important;font-size:13px}.monthly-summary #monthlySummary{display:flex;flex-wrap:wrap;gap:6px}.monthly-row{display:flex!important;flex:1 1 74px;align-items:center;justify-content:space-between;gap:6px;min-width:74px;padding:6px 8px!important;border:1px solid #e8e2d8!important;border-radius:4px;background:#faf9f6!important;font-size:10px!important}.monthly-name{font-weight:700;white-space:nowrap}.monthly-count{color:#393744;white-space:nowrap}.member-summary{margin:0 0 16px;text-align:left}.member-summary h3{margin:0 0 7px!important;font-size:13px}.member-counts{display:flex;flex-wrap:wrap;gap:6px}.member-count{display:inline-flex;gap:7px;align-items:center;padding:5px 9px;border:1px solid #e2ddd3;background:#f7f4ed;font-size:11px}.member-count strong{color:#393744}.grouped-line{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}.grouped-line>span{display:flex;flex-direction:column;min-width:0}.group-title{font-size:12px}.group-dates{font-size:9px;color:#888071;line-height:1.4}.group-count{font-size:10px;white-space:nowrap;color:#393744}.grouped-line>strong{font-size:10px;color:#888071;white-space:nowrap}@media(max-width:420px){.countries{gap:5px}.country{padding:7px 4px;font-size:11px}}';
     document.head.append(style);
   }
 
@@ -113,36 +113,36 @@
     const ctx=page1.getContext('2d');if(!ctx)return;
     paintPage(ctx,page1);
     let y=82;
-    ctx.textAlign='center';ctx.fillStyle='#617363';ctx.font='700 20px sans-serif';ctx.fillText('SEVENTEEN  ·  2026',width/2,y);y+=52;
-    ctx.fillStyle='#20251f';ctx.font='700 48px sans-serif';ctx.fillText('나의 공연 리캡',width/2,y);y+=76;
+    ctx.textAlign='center';ctx.fillStyle='#5f6880';ctx.font='700 20px sans-serif';ctx.fillText('SEVENTEEN  ·  2026',width/2,y);y+=52;
+    ctx.fillStyle='#383744';ctx.font='700 48px sans-serif';ctx.fillText('나의 공연 리캡',width/2,y);y+=76;
 
-    ctx.fillStyle='#f3f7f2';ctx.strokeStyle='#dfe8df';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(padding,y,contentWidth,132,18);ctx.fill();ctx.stroke();
-    ctx.textAlign='left';ctx.fillStyle='#526457';ctx.font='600 20px sans-serif';ctx.fillText('총 지출 · KRW 환산',padding+24,y+40);
-    ctx.fillStyle='#244a35';ctx.font='700 48px sans-serif';ctx.fillText(total,padding+24,y+100);y+=154;
+    ctx.fillStyle='#fff0f2';ctx.strokeStyle='#f7cac9';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(padding,y,contentWidth,132,18);ctx.fill();ctx.stroke();
+    ctx.textAlign='left';ctx.fillStyle='#6c596d';ctx.font='600 20px sans-serif';ctx.fillText('총 지출 · KRW 환산',padding+24,y+40);
+    ctx.fillStyle='#74485f';ctx.font='700 48px sans-serif';ctx.fillText(total,padding+24,y+100);y+=154;
 
     const statGap=18,statW=(contentWidth-statGap)/2,statH=112;
-    [0,1].forEach(index=>{const x=padding+index*(statW+statGap);ctx.fillStyle='#f8faf7';ctx.strokeStyle='#e1e8df';ctx.beginPath();ctx.roundRect(x,y,statW,statH,14);ctx.fill();ctx.stroke()});
-    ctx.textAlign='center';ctx.fillStyle='#315d4b';ctx.font='700 46px sans-serif';ctx.fillText(String(rows.length),padding+statW/2,y+55);ctx.fillText(String(countries),padding+statW+statGap+statW/2,y+55);
-    ctx.fillStyle='#637267';ctx.font='20px sans-serif';ctx.fillText('공연 관람',padding+statW/2,y+86);ctx.fillText('방문 국가',padding+statW+statGap+statW/2,y+86);y+=statH+30;
+    [0,1].forEach(index=>{const x=padding+index*(statW+statGap);ctx.fillStyle=index?'#eef2fa':'#fff1f2';ctx.strokeStyle=index?'#92a8d1':'#f7cac9';ctx.beginPath();ctx.roundRect(x,y,statW,statH,14);ctx.fill();ctx.stroke()});
+    ctx.textAlign='center';ctx.fillStyle='#8d526e';ctx.font='700 46px sans-serif';ctx.fillText(String(rows.length),padding+statW/2,y+55);ctx.fillStyle='#566d92';ctx.fillText(String(countries),padding+statW+statGap+statW/2,y+55);
+    ctx.fillStyle='#777583';ctx.font='20px sans-serif';ctx.fillText('공연 관람',padding+statW/2,y+86);ctx.fillText('방문 국가',padding+statW+statGap+statW/2,y+86);y+=statH+30;
 
     drawSectionTitle(ctx,'함께한 멤버',padding,y);y+=34;
     if(counts.length){
       counts.forEach(([name,count],index)=>{
         const row=Math.floor(index/memberCols),column=index%memberCols,x=padding+column*(memberCellW+memberGap),top=y+row*memberRowH;
-        roundedCard(ctx,x,top,memberCellW,38,'#f8faf7','#e1e7df',9);
-        ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 17px sans-serif';ctx.fillText(name,x+12,top+24);
-        ctx.textAlign='right';ctx.fillStyle='#315d4b';ctx.font='600 15px sans-serif';ctx.fillText(`${count}회`,x+memberCellW-12,top+24);
+        roundedCard(ctx,x,top,memberCellW,38,index%2?'#eef2fa':'#fff7f7',index%2?'#dce3f0':'#f1dce2',9);
+        ctx.textAlign='left';ctx.fillStyle='#3e3b49';ctx.font='700 17px sans-serif';ctx.fillText(name,x+12,top+24);
+        ctx.textAlign='right';ctx.fillStyle=index%2?'#566d92':'#8d526e';ctx.font='600 15px sans-serif';ctx.fillText(`${count}회`,x+memberCellW-12,top+24);
       });
       y+=memberRows*memberRowH+22;
-    }else{ctx.textAlign='left';ctx.fillStyle='#777064';ctx.font='17px sans-serif';ctx.fillText('선택한 공연에서 함께한 멤버가 없습니다.',padding,y+12);y+=40}
+    }else{ctx.textAlign='left';ctx.fillStyle='#777583';ctx.font='17px sans-serif';ctx.fillText('선택한 공연에서 함께한 멤버가 없습니다.',padding,y+12);y+=40}
 
     drawSectionTitle(ctx,'월별 관람 · 지출',padding,y);y+=34;
     monthly.forEach((item,index)=>{
       const row=Math.floor(index/monthCols),column=index%monthCols,x=padding+column*(monthCellW+monthGap),top=y+row*monthRowH;
-      roundedCard(ctx,x,top,monthCellW,54,'#f8faf7','#e1e7df',10);
-      ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 16px sans-serif';ctx.fillText(monthName(item.month),x+12,top+22);
-      ctx.textAlign='right';ctx.fillStyle='#637267';ctx.font='14px sans-serif';ctx.fillText(`${item.count}회`,x+monthCellW-12,top+22);
-      ctx.textAlign='left';ctx.fillStyle='#315d4b';ctx.font='700 16px sans-serif';ctx.fillText(money(item.spend),x+12,top+44);
+      roundedCard(ctx,x,top,monthCellW,54,index%2?'#eef2fa':'#fff7f7',index%2?'#dce3f0':'#f1dce2',10);
+      ctx.textAlign='left';ctx.fillStyle='#3e3b49';ctx.font='700 16px sans-serif';ctx.fillText(monthName(item.month),x+12,top+22);
+      ctx.textAlign='right';ctx.fillStyle='#777583';ctx.font='14px sans-serif';ctx.fillText(`${item.count}회`,x+monthCellW-12,top+22);
+      ctx.textAlign='left';ctx.fillStyle=index%2?'#566d92':'#8d526e';ctx.font='700 16px sans-serif';ctx.fillText(money(item.spend),x+12,top+44);
     });
     y+=monthRows*monthRowH+28;
     drawPageFooter(ctx,width,page1.height,'1 / 2');
@@ -170,39 +170,39 @@
     page2.width=width;page2.height=Math.max(360,eventsTop+(eventRowsHeight||emptyHeight)+64);
     const ctx2=page2.getContext('2d');if(!ctx2)return;
     paintPage(ctx2,page2);
-    ctx2.textAlign='center';ctx2.fillStyle='#617363';ctx2.font='700 20px sans-serif';ctx2.fillText('SEVENTEEN  ·  2026',width/2,82);
-    ctx2.fillStyle='#20251f';ctx2.font='700 38px sans-serif';ctx2.fillText('함께한 공연',width/2,139);
-    ctx2.fillStyle='#737a70';ctx2.font='17px sans-serif';ctx2.fillText(`${rows.length}회 관람 · ${eventLayouts.length}개 공연`,width/2,169);
+    ctx2.textAlign='center';ctx2.fillStyle='#5f6880';ctx2.font='700 20px sans-serif';ctx2.fillText('SEVENTEEN  ·  2026',width/2,82);
+    ctx2.fillStyle='#383744';ctx2.font='700 38px sans-serif';ctx2.fillText('함께한 공연',width/2,139);
+    ctx2.fillStyle='#777583';ctx2.font='17px sans-serif';ctx2.fillText(`${rows.length}회 관람 · ${eventLayouts.length}개 공연`,width/2,169);
     if(eventLayouts.length){
       let rowY=eventsTop;
       for(let index=0;index<eventLayouts.length;index+=eventCols){
         const rowGroups=eventLayouts.slice(index,index+eventCols),cardH=eventRowHeights[index/eventCols];
         rowGroups.forEach((group,column)=>{
           const x=padding+column*(eventCardW+eventGap),top=rowY;
-          roundedCard(ctx2,x,top,eventCardW,cardH,'#fbfcfa','#e3e9e1',14);
-          ctx2.textAlign='left';ctx2.fillStyle='#303a32';ctx2.font='700 20px sans-serif';
+          roundedCard(ctx2,x,top,eventCardW,cardH,column?'#f4f6fb':'#fff8f9',column?'#dce3f0':'#eadde6',14);
+          ctx2.textAlign='left';ctx2.fillStyle='#3e3b49';ctx2.font='700 20px sans-serif';
           group.title.forEach((line,lineIndex)=>ctx2.fillText(line,x+18,top+27+lineIndex*25));
           const badgeY=top+14+group.title.length*25+4,badgeW=112,badgeH=28;
-          roundedCard(ctx2,x+18,badgeY,badgeW,badgeH,'#e8f0e9','#e8f0e9',14);
-          ctx2.textAlign='center';ctx2.fillStyle='#315d4b';ctx2.font='700 14px sans-serif';ctx2.fillText(`${group.count}회 관람`,x+18+badgeW/2,badgeY+19);
+          roundedCard(ctx2,x+18,badgeY,badgeW,badgeH,column?'#eaf0fa':'#f8e7ec',column?'#dce3f0':'#f1dce2',14);
+          ctx2.textAlign='center';ctx2.fillStyle=column?'#566d92':'#8d526e';ctx2.font='700 14px sans-serif';ctx2.fillText(`${group.count}회 관람`,x+18+badgeW/2,badgeY+19);
           let chipY=badgeY+34;
           group.dateRows.forEach(dateRow=>{
             let chipX=x+18;
             dateRow.forEach(chip=>{
-              roundedCard(ctx2,chipX,chipY,chip.width,24,'#fff','#e1e7df',6);
-              ctx2.textAlign='center';ctx2.fillStyle='#667166';ctx2.font='13px sans-serif';ctx2.fillText(chip.date,chipX+chip.width/2,chipY+17);
+              roundedCard(ctx2,chipX,chipY,chip.width,24,'#fff','#e7e1e9',6);
+              ctx2.textAlign='center';ctx2.fillStyle='#667087';ctx2.font='13px sans-serif';ctx2.fillText(chip.date,chipX+chip.width/2,chipY+17);
               chipX+=chip.width+8;
             });
             chipY+=30;
           });
           const footerY=top+cardH-44;
-          ctx2.strokeStyle='#dfe5dd';ctx2.setLineDash([5,5]);ctx2.beginPath();ctx2.moveTo(x+18,footerY);ctx2.lineTo(x+eventCardW-18,footerY);ctx2.stroke();ctx2.setLineDash([]);
-          ctx2.textAlign='left';ctx2.fillStyle='#737a70';ctx2.font='14px sans-serif';ctx2.fillText('공연 지출 합계',x+18,footerY+27);
-          ctx2.textAlign='right';ctx2.fillStyle='#315d4b';ctx2.font='700 17px sans-serif';ctx2.fillText(money(group.total),x+eventCardW-18,footerY+28);
+          ctx2.strokeStyle='#e6e1ea';ctx2.setLineDash([5,5]);ctx2.beginPath();ctx2.moveTo(x+18,footerY);ctx2.lineTo(x+eventCardW-18,footerY);ctx2.stroke();ctx2.setLineDash([]);
+          ctx2.textAlign='left';ctx2.fillStyle='#777583';ctx2.font='14px sans-serif';ctx2.fillText('공연 지출 합계',x+18,footerY+27);
+          ctx2.textAlign='right';ctx2.fillStyle=column?'#566d92':'#8d526e';ctx2.font='700 17px sans-serif';ctx2.fillText(money(group.total),x+eventCardW-18,footerY+28);
         });
         rowY+=cardH+14;
       }
-    }else{ctx2.textAlign='center';ctx2.fillStyle='#737a70';ctx2.font='18px sans-serif';ctx2.fillText('선택한 공연이 없습니다.',width/2,eventsTop+42)}
+    }else{ctx2.textAlign='center';ctx2.fillStyle='#777583';ctx2.font='18px sans-serif';ctx2.fillText('선택한 공연이 없습니다.',width/2,eventsTop+42)}
     drawPageFooter(ctx2,width,page2.height,'2 / 2');
 
     receiptDownloadUrls.forEach(url=>URL.revokeObjectURL(url));receiptDownloadUrls=[];
@@ -223,7 +223,7 @@
   }
 
   function paintPage(ctx,canvas){
-    ctx.fillStyle='#f3f5f0';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#faf6f8';ctx.fillRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(38,36,canvas.width-76,canvas.height-72,24);ctx.fill();
   }
   function roundedCard(ctx,x,y,width,height,fill,stroke,radius){
@@ -233,7 +233,7 @@
     ctx.textAlign='left';ctx.fillStyle='#24221e';ctx.font='700 24px sans-serif';ctx.fillText(title,padding,y);
   }
   function drawPageFooter(ctx,width,height,label){
-    ctx.textAlign='center';ctx.fillStyle='#879186';ctx.font='15px sans-serif';ctx.fillText(`CARAT MEMORY  ·  2026  ·  ${label}`,width/2,height-48);
+    ctx.textAlign='center';ctx.fillStyle='#898797';ctx.font='15px sans-serif';ctx.fillText(`CARAT MEMORY  ·  2026  ·  ${label}`,width/2,height-48);
   }
 
   addStyles();
