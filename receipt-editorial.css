@@ -101,6 +101,7 @@
 
 #receipt .editorial-heading {
   margin-bottom: 24px;
+  background: #E8EEF5;
 }
 
 #receipt .editorial-heading-row {
@@ -443,16 +444,14 @@
 
 #receipt .receipt-tools {
   margin: 0 0 12px;
-  border: 0;
-  background: transparent;
-  color: #fff;
+  border: 1px solid #D2DCE8;
+  background: #E8EEF5;
+  color: #40566F;
 }
 
 #receipt .receipt-tools > summary {
-  padding: 12px 2px;
+  padding: 12px 14px;
   cursor: pointer;
-  background: transparent !important;
-  color: #fff;
   font-size: 12px;
   font-weight: 700;
   list-style: none;
@@ -463,13 +462,12 @@
 }
 
 #receipt .receipt-tools > summary:hover {
-  background: transparent !important;
+  background: #DFE7F0;
 }
 
 #receipt .receipt-tools > summary::after {
   content: "+";
   float: right;
-  color: #fff;
 }
 
 #receipt .receipt-tools[open] > summary::after {
