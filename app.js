@@ -13,7 +13,7 @@ function expandEvents(){
   cfg.events.forEach(group=>group[0].split(',').forEach(md=>{
     const [mm,dd]=md.split('-');
     const options=group[7].split(',').map(label=>{const colon=label.lastIndexOf(':');return{name:label.slice(0,colon),price:Number(label.slice(colon+1))||0}});
-    events.push({id:`${group[1]}-${md}-${events.length}`,date:`2026-${mm}-${dd}`,country:group[1],category:group[2],artist:group[3],title:group[4],venue:group[5],currency:group[6],options,grade:0,price:options[0].price,unit:group[6],selected:false});
+    events.push({id:`${group[1]}-${md}-${events.length}`,date:`2026-${mm}-${dd}`,country:group[1],category:group[2],artist:group[3],title:group[4],venue:group[5],currency:group[6],options,grade:0,price:options[0].price,unit:group[6],selected:false,editing:false});
   }));
 }
 function visibleEvents(){return events.filter(e=>state.countries.has(e.country)&&state.months.has(month(e))&&state.categories.has(e.category))}
@@ -32,7 +32,7 @@ function renderEvents(){
   $('count').textContent=`표시 ${list.length}건 · 선택 ${events.filter(e=>e.selected).length}건`;
   $('events').innerHTML=list.length?list.map(e=>{
     const c=country(e.country);
-    return `<article class="event ${e.selected?'selected':''}"><input type="checkbox" data-select="${e.id}" ${e.selected?'checked':''} aria-label="공연 선택"><div><div class="date">${e.date} · ${c[2]} ${c[1]}</div><div class="title">${e.title}</div><div class="meta">${e.artist} · ${cfg.categories[e.category]}</div><div class="venue">${e.venue}</div><div class="grades">${e.options.map((o,i)=>`<button type="button" class="grade ${e.grade===i?'active':''}" data-grade="${e.id}" data-index="${i}">${o.name}${o.price?' · '+money(o.price,e.currency):''}</button>`).join('')}</div><div class="edit"><input type="number" min="0" step="1" inputmode="decimal" data-price="${e.id}" value="${Number(e.price)||0}" aria-label="티켓 가격"><select data-unit="${e.id}" aria-label="가격 통화"><option value="${e.currency}" ${e.unit===e.currency?'selected':''}>${e.currency}</option><option value="KRW" ${e.unit==='KRW'?'selected':''}>KRW</option></select></div></div></article>`;
+    return `<article class="event ${e.selected?'selected':''}"><input type="checkbox" data-select="${e.id}" ${e.selected?'checked':''} aria-label="공연 선택"><div><div class="date">${e.date} · ${c[2]} ${c[1]}</div><div class="title">${e.title}</div><div class="meta">${e.artist} · ${cfg.categories[e.category]}</div><div class="venue">${e.venue}</div><div class="ticket-heading"><div class="grades">${e.options.map((o,i)=>`<button type="button" class="grade ${e.grade===i?'active':''}" data-grade="${e.id}" data-index="${i}">${o.name}${o.price?' · '+money(o.price,e.currency):''}</button>`).join('')}</div><button type="button" class="edit-toggle" data-edit="${e.id}" aria-label="가격 직접 수정" title="가격 직접 수정" aria-expanded="${e.editing}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></div>${e.editing?`<div class="edit"><input type="number" min="0" step="1" inputmode="decimal" data-price="${e.id}" value="${Number(e.price)||0}" aria-label="티켓 가격"><select data-unit="${e.id}" aria-label="가격 통화"><option value="${e.currency}" ${e.unit===e.currency?'selected':''}>${e.currency}</option><option value="KRW" ${e.unit==='KRW'?'selected':''}>KRW</option></select></div>`:''}</div></article>`;
   }).join(''):'<div class="empty">선택한 필터에 해당하는 공연이 없습니다.</div>';
 }
 function renderReceipt(){
@@ -45,9 +45,10 @@ function render(){renderFilters();renderEvents();renderReceipt();persist()}
 function selectFromShare(){if(!location.hash)return;try{const data=JSON.parse(decodeURIComponent(location.hash.slice(1)));data.events?.forEach(([id,grade,price,unit])=>{const event=events.find(e=>e.id===id);if(event)Object.assign(event,{selected:true,grade:Number(grade)||0,price:Number(price)||0,unit:unit||event.currency})});$('nickname').value=data.nickname||''}catch(_){}}
 
 document.addEventListener('click',event=>{
-  const countryButton=event.target.closest('[data-country]'),gradeButton=event.target.closest('[data-grade]');
+  const countryButton=event.target.closest('[data-country]'),gradeButton=event.target.closest('[data-grade]'),editButton=event.target.closest('[data-edit]');
   if(countryButton){const id=countryButton.dataset.country;state.countries.has(id)?state.countries.delete(id):state.countries.add(id);render()}
-  if(gradeButton){const item=events.find(e=>e.id===gradeButton.dataset.grade);if(item){item.grade=Number(gradeButton.dataset.index);item.price=item.options[item.grade].price;item.unit=item.currency;render()}}
+  if(gradeButton){const item=events.find(e=>e.id===gradeButton.dataset.grade);if(item){item.grade=Number(gradeButton.dataset.index);item.price=item.options[item.grade].price;item.unit=item.currency;item.editing=false;render()}}
+  if(editButton){const item=events.find(e=>e.id===editButton.dataset.edit);if(item){item.editing=!item.editing;render();if(item.editing)document.querySelector(`[data-price="${CSS.escape(item.id)}"]`)?.focus()}}
 });
 document.addEventListener('change',event=>{
   const input=event.target;
