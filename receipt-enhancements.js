@@ -101,109 +101,126 @@
   function drawReceiptImage(){
     const rows=readRows(),monthly=getMonthlyTotals(),counts=readMemberCounts(),countries=getCountryCount();
     const total=document.getElementById('total')?.textContent?.trim()||'₩0';
-    const canvas=document.createElement('canvas'),width=1080,padding=76,right=width-padding,contentWidth=right-padding;
-    const measure=canvas.getContext('2d');if(!measure)return;
-    measure.font='700 48px sans-serif';const titleLines=wrapText(measure,'2026 나의 공연 리캡',contentWidth);
-    measure.font='22px sans-serif';
-    const memberLayouts=counts.map(([name,count])=>({name,count,width:measure.measureText(`${name}  ${count}회`).width+36}));
-    const memberGap=12,memberCols=3,memberCellW=(contentWidth-memberGap*(memberCols-1))/memberCols;
-    const memberRows=Math.ceil(memberLayouts.length/memberCols);
-    const eventLayouts=[];
-    const eventGap=18,eventCols=2,eventCardW=(contentWidth-eventGap)/eventCols;
-    const eventGroups=new Map();
-    rows.forEach(row=>{const group=eventGroups.get(row.title)||{title:row.title,dates:[],count:0,total:0};group.dates.push(row.date);group.count++;group.total+=row.amount;eventGroups.set(row.title,group)});
-    measure.font='700 20px sans-serif';
-    for(const group of eventGroups.values()){
-      const title=wrapText(measure,group.title,eventCardW-36);
-      measure.font='17px sans-serif';
-      const dateRows=[];let currentRow=[],currentWidth=0;
+    const width=1080,padding=76,contentWidth=width-padding*2;
+    const page1=document.createElement('canvas'),page1Measure=page1.getContext('2d');if(!page1Measure)return;
+    const memberCols=3,memberGap=12,memberCellW=(contentWidth-memberGap*(memberCols-1))/memberCols,memberRowH=48;
+    const memberRows=Math.ceil(counts.length/memberCols),monthCols=3,monthGap=12,monthRowH=64;
+    const monthCellW=(contentWidth-monthGap*(monthCols-1))/monthCols,monthRows=Math.ceil(monthly.length/monthCols);
+    const page1Height=82+52+58+18+132+22+112+30+34+memberRows*memberRowH+22+34+monthRows*monthRowH+100;
+    page1.width=width;page1.height=Math.max(700,page1Height);
+    const ctx=page1.getContext('2d');if(!ctx)return;
+    paintPage(ctx,page1);
+    let y=82;
+    ctx.textAlign='center';ctx.fillStyle='#617363';ctx.font='700 20px sans-serif';ctx.fillText('SEVENTEEN  ·  2026',width/2,y);y+=52;
+    ctx.fillStyle='#20251f';ctx.font='700 48px sans-serif';ctx.fillText('나의 공연 리캡',width/2,y);y+=76;
+
+    ctx.fillStyle='#f3f7f2';ctx.strokeStyle='#dfe8df';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(padding,y,contentWidth,132,18);ctx.fill();ctx.stroke();
+    ctx.textAlign='left';ctx.fillStyle='#526457';ctx.font='600 20px sans-serif';ctx.fillText('총 지출 · KRW 환산',padding+24,y+40);
+    ctx.fillStyle='#244a35';ctx.font='700 48px sans-serif';ctx.fillText(total,padding+24,y+100);y+=154;
+
+    const statGap=18,statW=(contentWidth-statGap)/2,statH=112;
+    [0,1].forEach(index=>{const x=padding+index*(statW+statGap);ctx.fillStyle='#f8faf7';ctx.strokeStyle='#e1e8df';ctx.beginPath();ctx.roundRect(x,y,statW,statH,14);ctx.fill();ctx.stroke()});
+    ctx.textAlign='center';ctx.fillStyle='#315d4b';ctx.font='700 46px sans-serif';ctx.fillText(String(rows.length),padding+statW/2,y+55);ctx.fillText(String(countries),padding+statW+statGap+statW/2,y+55);
+    ctx.fillStyle='#637267';ctx.font='20px sans-serif';ctx.fillText('공연 관람',padding+statW/2,y+86);ctx.fillText('방문 국가',padding+statW+statGap+statW/2,y+86);y+=statH+30;
+
+    drawSectionTitle(ctx,'함께한 멤버',padding,y);y+=34;
+    if(counts.length){
+      counts.forEach(([name,count],index)=>{
+        const row=Math.floor(index/memberCols),column=index%memberCols,x=padding+column*(memberCellW+memberGap),top=y+row*memberRowH;
+        roundedCard(ctx,x,top,memberCellW,38,'#f8faf7','#e1e7df',9);
+        ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 17px sans-serif';ctx.fillText(name,x+12,top+24);
+        ctx.textAlign='right';ctx.fillStyle='#315d4b';ctx.font='600 15px sans-serif';ctx.fillText(`${count}회`,x+memberCellW-12,top+24);
+      });
+      y+=memberRows*memberRowH+22;
+    }else{ctx.textAlign='left';ctx.fillStyle='#777064';ctx.font='17px sans-serif';ctx.fillText('선택한 공연에서 함께한 멤버가 없습니다.',padding,y+12);y+=40}
+
+    drawSectionTitle(ctx,'월별 관람 · 지출',padding,y);y+=34;
+    monthly.forEach((item,index)=>{
+      const row=Math.floor(index/monthCols),column=index%monthCols,x=padding+column*(monthCellW+monthGap),top=y+row*monthRowH;
+      roundedCard(ctx,x,top,monthCellW,54,'#f8faf7','#e1e7df',10);
+      ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 16px sans-serif';ctx.fillText(monthName(item.month),x+12,top+22);
+      ctx.textAlign='right';ctx.fillStyle='#637267';ctx.font='14px sans-serif';ctx.fillText(`${item.count}회`,x+monthCellW-12,top+22);
+      ctx.textAlign='left';ctx.fillStyle='#315d4b';ctx.font='700 16px sans-serif';ctx.fillText(money(item.spend),x+12,top+44);
+    });
+    y+=monthRows*monthRowH+28;
+    drawPageFooter(ctx,width,page1.height,'1 / 2');
+
+    const page2=document.createElement('canvas'),measure=page2.getContext('2d');if(!measure)return;
+    const eventCols=2,eventGap=18,eventCardW=(contentWidth-eventGap)/eventCols,eventLayouts=[];
+    const grouped=new Map();
+    rows.forEach(row=>{const group=grouped.get(row.title)||{title:row.title,dates:[],count:0,total:0};group.dates.push(row.date);group.count++;group.total+=row.amount;grouped.set(row.title,group)});
+    for(const group of grouped.values()){
+      measure.font='700 20px sans-serif';const title=wrapText(measure,group.title,eventCardW-36);
+      measure.font='16px sans-serif';const dateRows=[];let currentRow=[],currentWidth=0;
       group.dates.filter(Boolean).forEach(date=>{
-        const chipWidth=measure.measureText(date).width+26;
+        const chipWidth=measure.measureText(date).width+22;
         if(currentRow.length&&currentWidth+chipWidth+8>eventCardW-36){dateRows.push(currentRow);currentRow=[];currentWidth=0}
         currentRow.push({date,width:chipWidth});currentWidth+=chipWidth+(currentRow.length>1?8:0);
       });
       if(currentRow.length)dateRows.push(currentRow);
-      const height=18+title.length*27+8+30+8+Math.max(1,dateRows.length)*32+8+48+12;
+      const height=14+title.length*25+6+28+6+Math.max(1,dateRows.length)*30+10+44+12;
       eventLayouts.push({title,dateRows,count:group.count,total:group.total,height});
-      measure.font='700 20px sans-serif';
     }
-    const monthlyRows=Math.ceil(monthly.length/3);
     const eventRowHeights=[];
     for(let index=0;index<eventLayouts.length;index+=eventCols)eventRowHeights.push(Math.max(...eventLayouts.slice(index,index+eventCols).map(group=>group.height)));
-    const eventRowsHeight=eventRowHeights.reduce((sum,rowHeight)=>sum+rowHeight+14,0);
-    const height=620+titleLines.length*60+memberRows*48+monthlyRows*55+eventRowsHeight+120;
-    canvas.width=width;canvas.height=Math.max(920,height);
-    const ctx=canvas.getContext('2d');if(!ctx)return;
-    ctx.fillStyle='#f3f5f0';ctx.fillRect(0,0,width,canvas.height);ctx.fillStyle='#ffffff';ctx.fillRect(48,42,width-96,canvas.height-84);
-    let y=110;
-    ctx.textAlign='center';ctx.fillStyle='#514b40';ctx.font='700 21px sans-serif';ctx.fillText('SEVENTEEN  /  2026',width/2,y);y+=70;
-    ctx.fillStyle='#20251f';ctx.font='700 48px sans-serif';titleLines.forEach(line=>{ctx.fillText(line,width/2,y);y+=60});y+=12;
-
-    ctx.fillStyle='#f3f7f2';ctx.strokeStyle='#dfe8df';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(padding,y,contentWidth,126,14);ctx.fill();ctx.stroke();
-    ctx.textAlign='left';ctx.fillStyle='#526457';ctx.font='600 21px sans-serif';ctx.fillText('총 지출 · KRW 환산',padding+24,y+39);
-    ctx.fillStyle='#244a35';ctx.font='700 48px sans-serif';ctx.fillText(total,padding+24,y+96);y+=150;
-
-    const cardGap=18,cardW=(contentWidth-cardGap)/2,cardH=112,left=padding;
-    [left,left+cardW+cardGap].forEach(x=>{ctx.fillStyle='#f8faf7';ctx.beginPath();ctx.roundRect(x,y,cardW,cardH,12);ctx.fill();ctx.strokeStyle='#e1e8df';ctx.stroke()});
-    ctx.fillStyle='#315d4b';ctx.font='700 50px sans-serif';ctx.fillText(String(rows.length),left+cardW/2,y+61);ctx.fillText(String(countries),left+cardW+cardGap+cardW/2,y+61);
-    ctx.fillStyle='#637267';ctx.font='21px sans-serif';ctx.fillText('공연 관람',left+cardW/2,y+91);ctx.fillText('방문 국가',left+cardW+cardGap+cardW/2,y+91);y+=cardH+34;
-
-    ctx.textAlign='left';ctx.fillStyle='#24221e';ctx.font='700 25px sans-serif';ctx.fillText('함께한 멤버',padding,y);y+=34;
-    if(memberLayouts.length){
-      memberLayouts.forEach((member,index)=>{
-        const row=Math.floor(index/memberCols),col=index%memberCols,x=padding+col*(memberCellW+memberGap),top=y+row*48;
-        ctx.fillStyle='#f8faf7';ctx.strokeStyle='#e1e7df';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x,top,memberCellW,38,8);ctx.fill();ctx.stroke();
-        ctx.textAlign='center';ctx.fillStyle='#303a32';ctx.font='700 17px sans-serif';ctx.fillText(member.name,x+memberCellW/2,top+24);
-        ctx.textAlign='right';ctx.fillStyle='#315d4b';ctx.font='600 15px sans-serif';ctx.fillText(`${member.count}회`,x+memberCellW-8,top+24);
-      });
-      y+=memberRows*48+12;
-    }else{ctx.fillStyle='#777064';ctx.font='17px sans-serif';ctx.fillText('함께한 멤버 기록이 없습니다.',padding,y+10);y+=36}
-
-    ctx.textAlign='left';ctx.fillStyle='#24221e';ctx.font='700 25px sans-serif';ctx.fillText('월별 관람',padding,y);y+=18;
-    const monthGap=10,monthW=(contentWidth-monthGap*2)/3;
-    monthly.forEach((item,index)=>{
-      const row=Math.floor(index/3),col=index%3,x=padding+col*(monthW+monthGap),top=y+row*48;
-      ctx.fillStyle='#f8faf7';ctx.strokeStyle='#e1e7df';ctx.beginPath();ctx.roundRect(x,top,monthW,38,8);ctx.fill();ctx.stroke();
-      ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 16px sans-serif';ctx.fillText(monthName(item.month),x+8,top+24);
-      ctx.textAlign='center';ctx.fillStyle='#637267';ctx.font='15px sans-serif';ctx.fillText(`${item.count}회`,x+monthW/2,top+24);
-      ctx.textAlign='right';ctx.fillStyle='#315d4b';ctx.font='700 15px sans-serif';ctx.fillText(money(item.spend),x+monthW-8,top+24);
-    });
-    y+=monthlyRows*48+26;
-
-    ctx.textAlign='left';ctx.fillStyle='#24221e';ctx.font='700 25px sans-serif';ctx.fillText('함께한 공연',padding,y);y+=16;
-    for(let index=0;index<eventLayouts.length;index+=eventCols){
-      const rowGroups=eventLayouts.slice(index,index+eventCols),cardH=eventRowHeights[index/eventCols];
-      rowGroups.forEach((group,column)=>{
-      const cardX=padding+column*(eventCardW+eventGap),cardY=y+14,cardW=eventCardW;
-      ctx.fillStyle='#fbfcfa';ctx.strokeStyle='#e3e9e1';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(cardX,cardY,cardW,cardH,14);ctx.fill();ctx.stroke();
-      ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 20px sans-serif';
-      group.title.forEach((line,lineIndex)=>ctx.fillText(line,cardX+18,cardY+29+lineIndex*27));
-      const badgeW=112,badgeH=30,badgeX=cardX+18,badgeY=cardY+18+group.title.length*27+4;
-      ctx.fillStyle='#e8f0e9';ctx.beginPath();ctx.roundRect(badgeX,badgeY,badgeW,badgeH,17);ctx.fill();
-      ctx.textAlign='center';ctx.fillStyle='#315d4b';ctx.font='700 15px sans-serif';ctx.fillText(`${group.count}회 관람`,badgeX+badgeW/2,badgeY+21);
-      let chipY=badgeY+38;
-      group.dateRows.forEach(row=>{
-        let chipX=cardX+18;
-        row.forEach(dateChip=>{
-          const chipH=25;ctx.fillStyle='#ffffff';ctx.strokeStyle='#e1e7df';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(chipX,chipY,dateChip.width,chipH,7);ctx.fill();ctx.stroke();
-          ctx.textAlign='center';ctx.fillStyle='#667166';ctx.font='14px sans-serif';ctx.fillText(dateChip.date,chipX+dateChip.width/2,chipY+17);
-          chipX+=dateChip.width+8;
+    const eventsTop=196,eventRowsHeight=eventRowHeights.reduce((sum,rowHeight)=>sum+rowHeight+14,0);
+    const emptyHeight=eventLayouts.length?0:100;
+    page2.width=width;page2.height=Math.max(360,eventsTop+(eventRowsHeight||emptyHeight)+64);
+    const ctx2=page2.getContext('2d');if(!ctx2)return;
+    paintPage(ctx2,page2);
+    ctx2.textAlign='center';ctx2.fillStyle='#617363';ctx2.font='700 20px sans-serif';ctx2.fillText('SEVENTEEN  ·  2026',width/2,82);
+    ctx2.fillStyle='#20251f';ctx2.font='700 38px sans-serif';ctx2.fillText('함께한 공연',width/2,139);
+    ctx2.fillStyle='#737a70';ctx2.font='17px sans-serif';ctx2.fillText(`${rows.length}회 관람 · ${eventLayouts.length}개 공연`,width/2,169);
+    if(eventLayouts.length){
+      let rowY=eventsTop;
+      for(let index=0;index<eventLayouts.length;index+=eventCols){
+        const rowGroups=eventLayouts.slice(index,index+eventCols),cardH=eventRowHeights[index/eventCols];
+        rowGroups.forEach((group,column)=>{
+          const x=padding+column*(eventCardW+eventGap),top=rowY;
+          roundedCard(ctx2,x,top,eventCardW,cardH,'#fbfcfa','#e3e9e1',14);
+          ctx2.textAlign='left';ctx2.fillStyle='#303a32';ctx2.font='700 20px sans-serif';
+          group.title.forEach((line,lineIndex)=>ctx2.fillText(line,x+18,top+27+lineIndex*25));
+          const badgeY=top+14+group.title.length*25+4,badgeW=112,badgeH=28;
+          roundedCard(ctx2,x+18,badgeY,badgeW,badgeH,'#e8f0e9','#e8f0e9',14);
+          ctx2.textAlign='center';ctx2.fillStyle='#315d4b';ctx2.font='700 14px sans-serif';ctx2.fillText(`${group.count}회 관람`,x+18+badgeW/2,badgeY+19);
+          let chipY=badgeY+34;
+          group.dateRows.forEach(dateRow=>{
+            let chipX=x+18;
+            dateRow.forEach(chip=>{
+              roundedCard(ctx2,chipX,chipY,chip.width,24,'#fff','#e1e7df',6);
+              ctx2.textAlign='center';ctx2.fillStyle='#667166';ctx2.font='13px sans-serif';ctx2.fillText(chip.date,chipX+chip.width/2,chipY+17);
+              chipX+=chip.width+8;
+            });
+            chipY+=30;
+          });
+          const footerY=top+cardH-44;
+          ctx2.strokeStyle='#dfe5dd';ctx2.setLineDash([5,5]);ctx2.beginPath();ctx2.moveTo(x+18,footerY);ctx2.lineTo(x+eventCardW-18,footerY);ctx2.stroke();ctx2.setLineDash([]);
+          ctx2.textAlign='left';ctx2.fillStyle='#737a70';ctx2.font='14px sans-serif';ctx2.fillText('공연 지출 합계',x+18,footerY+27);
+          ctx2.textAlign='right';ctx2.fillStyle='#315d4b';ctx2.font='700 17px sans-serif';ctx2.fillText(money(group.total),x+eventCardW-18,footerY+28);
         });
-        chipY+=32;
-      });
-      const footerY=cardY+cardH-48;ctx.strokeStyle='#dfe5dd';ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(cardX+18,footerY);ctx.lineTo(cardX+cardW-18,footerY);ctx.stroke();ctx.setLineDash([]);
-      ctx.textAlign='left';ctx.fillStyle='#737a70';ctx.font='14px sans-serif';ctx.fillText('지출 합계',cardX+18,footerY+29);
-      ctx.textAlign='right';ctx.fillStyle='#315d4b';ctx.font='700 17px sans-serif';ctx.fillText(money(group.total),cardX+cardW-18,footerY+30);
-      });
-      y+=cardH+14;
-    }
-    y+=24;ctx.textAlign='center';ctx.fillStyle='#637267';ctx.font='17px sans-serif';ctx.fillText('당신의 2026년 공연 기록',width/2,y);
+        rowY+=cardH+14;
+      }
+    }else{ctx2.textAlign='center';ctx2.fillStyle='#737a70';ctx2.font='18px sans-serif';ctx2.fillText('선택한 공연이 없습니다.',width/2,eventsTop+42)}
+    drawPageFooter(ctx2,width,page2.height,'2 / 2');
 
-    canvas.toBlob(blob=>{
-      const link=document.createElement('a');link.download='seventeen-concert-recap-2026.png';
-      link.href=blob?URL.createObjectURL(blob):canvas.toDataURL('image/png');link.click();
-      if(blob)setTimeout(()=>URL.revokeObjectURL(link.href),1500);
-    },'image/png');
+    [page1,page2].forEach((page,index)=>{
+      const link=document.createElement('a');link.download=`seventeen-concert-recap-2026-${index+1}.png`;
+      link.href=page.toDataURL('image/png');document.body.append(link);link.click();link.remove();
+    });
+  }
+
+  function paintPage(ctx,canvas){
+    ctx.fillStyle='#f3f5f0';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(38,36,canvas.width-76,canvas.height-72,24);ctx.fill();
+  }
+  function roundedCard(ctx,x,y,width,height,fill,stroke,radius){
+    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(x,y,width,height,radius);ctx.fill();ctx.stroke();
+  }
+  function drawSectionTitle(ctx,title,padding,y){
+    ctx.textAlign='left';ctx.fillStyle='#24221e';ctx.font='700 24px sans-serif';ctx.fillText(title,padding,y);
+  }
+  function drawPageFooter(ctx,width,height,label){
+    ctx.textAlign='center';ctx.fillStyle='#879186';ctx.font='15px sans-serif';ctx.fillText(`CARAT MEMORY  ·  2026  ·  ${label}`,width/2,height-48);
   }
 
   addStyles();
