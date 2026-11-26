@@ -7,10 +7,12 @@
   <title>2026 SEVENTEEN 공연 리캡</title>
   <link rel="stylesheet" href="styles.css?v=6">
   <link rel="stylesheet" href="receipt-enhancements.css?v=2">
+  <link rel="stylesheet" href="receipt-layout-overrides.css?v=1">
   <script src="jp-ticket-options.js?v=1" defer></script>
   <script src="app.js?v=5" defer></script>
+  <script src="random-nickname.js?v=1" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
-  <script src="receipt-enhancements.js?v=2" defer></script>
+  <script src="receipt-enhancements.js?v=3" defer></script>
 </head>
 <body>
   <header>
@@ -36,7 +38,7 @@
           <details><summary id="categorySummary">전체 유형</summary><div id="categories" class="menu"></div></details>
         </section>
         <section class="panel">
-          <div class="heading"><h2>공연 목록</h2><div class="event-actions"><button id="selectVisibleEvents" type="button">공연 전체 선택</button><button id="clearVisibleEvents" type="button">전체 해제</button><span id="count"></span></div></div>
+          <div class="heading"><h2>공연 목록</h2><div class="event-actions"><button id="selectVisibleEvents" type="button">공연 전체 선택</button><button id="clearVisibleEvents" type="button">전체 해제</button></div></div>
           <div id="events" class="events"></div>
         </section>
       </section>
@@ -45,7 +47,7 @@
         <div class="receipt-mark" aria-hidden="true">✦</div>
         <p class="receipt-kicker">YOUR CONCERT YEAR</p>
         <h2 id="receiptTitle">공연 영수증</h2>
-        <label class="nickname-label">닉네임 (선택)<input id="nickname" maxlength="24" placeholder="닉네임"></label>
+        <label class="nickname-label">닉네임 (선택)<input id="nickname" maxlength="24" placeholder="예: 캐럿의 별빛"></label>
         <div class="receipt-total"><span>총 지출 · KRW 환산</span><strong id="total">₩0</strong><small id="visitCount">관람 0회 · 국가 0개</small></div>
         <div class="receipt-divider"><span>✦</span></div>
         <section class="monthly-summary" aria-labelledby="monthlySummaryTitle">
