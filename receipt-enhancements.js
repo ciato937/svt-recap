@@ -19,13 +19,16 @@
       const title=match?.[3]?.trim()||label;
       const date=match?`${match[1]}-${match[2]}`:'';
       const amount=Number((row.querySelector('b')?.textContent||'').replace(/[^\d.-]/g,''))||0;
-      const group=groups.get(title)||{title,visits:[],total:0};
-      group.visits.push({date,month:Number(date.slice(0,2)),amount});group.total+=amount;groups.set(title,group);
+      const group=groups.get(title)||{title,visits:[],total:0,members:new Map()};
+      group.visits.push({date,month:Number(date.slice(0,2)),amount});group.total+=amount;
+      (row.dataset.members||'').split('|').map(name=>name.trim()).filter(Boolean).forEach(name=>group.members.set(name,(group.members.get(name)||0)+1));
+      groups.set(title,group);
     });
     selectedEvents.innerHTML=[...groups.values()].map(group=>{
       const data=encodeURIComponent(JSON.stringify(group.visits));
       const dates=group.visits.map(visit=>`<time class="group-date" datetime="2026-${escapeHtml(visit.date)}">${escapeHtml(visit.date)}</time>`).join('');
-      return `<article class="selected-line grouped-line" data-visits="${data}"><div class="group-heading"><strong class="group-title">${escapeHtml(group.title)}</strong><span class="group-count">${group.visits.length}회 관람</span></div><div class="group-dates">${dates}</div><div class="group-total"><small>공연 지출 합계</small><strong>${money(group.total)}</strong></div></article>`;
+      const memberCounts=encodeURIComponent(JSON.stringify([...group.members]));
+      return `<article class="selected-line grouped-line" data-visits="${data}" data-member-counts="${memberCounts}"><div class="group-heading"><strong class="group-title">${escapeHtml(group.title)}</strong><span class="group-count">${group.visits.length}회 관람</span></div><div class="group-dates">${dates}</div><div class="group-total"><small>공연 지출 합계</small><strong>${money(group.total)}</strong></div></article>`;
     }).join('');
   }
 
@@ -45,10 +48,10 @@
 
   function readMemberCounts(){
     const counts=new Map(memberNames.map(name=>[name,0]));
-    eventList?.querySelectorAll('.event').forEach(card=>{
-      if(!card.querySelector('[data-select]')?.checked)return;
-      (card.querySelector('.event-members')?.dataset.members||'').split('|').map(name=>name.trim()).filter(Boolean).forEach(name=>{
-        if(counts.has(name))counts.set(name,counts.get(name)+1);
+    selectedEvents?.querySelectorAll('.grouped-line').forEach(group=>{
+      let members=[];try{members=JSON.parse(decodeURIComponent(group.dataset.memberCounts||''))}catch(_){}
+      members.forEach(([name,count])=>{
+        if(counts.has(name))counts.set(name,counts.get(name)+Number(count||0));
       });
     });
     return[...counts].filter(([,count])=>count>0);
@@ -106,24 +109,29 @@
     const memberGap=12,memberCols=3,memberCellW=(contentWidth-memberGap*(memberCols-1))/memberCols;
     const memberRows=Math.ceil(memberLayouts.length/memberCols);
     const eventLayouts=[];
+    const eventGap=18,eventCols=2,eventCardW=(contentWidth-eventGap)/eventCols;
     const eventGroups=new Map();
     rows.forEach(row=>{const group=eventGroups.get(row.title)||{title:row.title,dates:[],count:0,total:0};group.dates.push(row.date);group.count++;group.total+=row.amount;eventGroups.set(row.title,group)});
-    measure.font='22px sans-serif';
+    measure.font='700 20px sans-serif';
     for(const group of eventGroups.values()){
-      const title=wrapText(measure,group.title,contentWidth-190);
+      const title=wrapText(measure,group.title,eventCardW-36);
       measure.font='17px sans-serif';
       const dateRows=[];let currentRow=[],currentWidth=0;
       group.dates.filter(Boolean).forEach(date=>{
         const chipWidth=measure.measureText(date).width+26;
-        if(currentRow.length&&currentWidth+chipWidth+8>contentWidth-36){dateRows.push(currentRow);currentRow=[];currentWidth=0}
+        if(currentRow.length&&currentWidth+chipWidth+8>eventCardW-36){dateRows.push(currentRow);currentRow=[];currentWidth=0}
         currentRow.push({date,width:chipWidth});currentWidth+=chipWidth+(currentRow.length>1?8:0);
       });
       if(currentRow.length)dateRows.push(currentRow);
-      eventLayouts.push({title,dateRows,count:group.count,total:group.total,height:20+title.length*30+12+Math.max(1,dateRows.length)*36+12+1+42+16});
-      measure.font='22px sans-serif';
+      const height=18+title.length*27+8+30+8+Math.max(1,dateRows.length)*32+8+48+12;
+      eventLayouts.push({title,dateRows,count:group.count,total:group.total,height});
+      measure.font='700 20px sans-serif';
     }
     const monthlyRows=Math.ceil(monthly.length/3);
-    const height=620+titleLines.length*60+memberRows*48+monthlyRows*55+eventLayouts.reduce((sum,row)=>sum+row.height+14,0)+120;
+    const eventRowHeights=[];
+    for(let index=0;index<eventLayouts.length;index+=eventCols)eventRowHeights.push(Math.max(...eventLayouts.slice(index,index+eventCols).map(group=>group.height)));
+    const eventRowsHeight=eventRowHeights.reduce((sum,rowHeight)=>sum+rowHeight+14,0);
+    const height=620+titleLines.length*60+memberRows*48+monthlyRows*55+eventRowsHeight+120;
     canvas.width=width;canvas.height=Math.max(920,height);
     const ctx=canvas.getContext('2d');if(!ctx)return;
     ctx.fillStyle='#f3f5f0';ctx.fillRect(0,0,width,canvas.height);ctx.fillStyle='#ffffff';ctx.fillRect(48,42,width-96,canvas.height-84);
@@ -163,29 +171,32 @@
     y+=monthlyRows*48+26;
 
     ctx.textAlign='left';ctx.fillStyle='#24221e';ctx.font='700 25px sans-serif';ctx.fillText('함께한 공연',padding,y);y+=16;
-    eventLayouts.forEach(group=>{
-      const cardX=padding,cardY=y+14,cardW=contentWidth,cardH=group.height;
+    for(let index=0;index<eventLayouts.length;index+=eventCols){
+      const rowGroups=eventLayouts.slice(index,index+eventCols),cardH=eventRowHeights[index/eventCols];
+      rowGroups.forEach((group,column)=>{
+      const cardX=padding+column*(eventCardW+eventGap),cardY=y+14,cardW=eventCardW;
       ctx.fillStyle='#fbfcfa';ctx.strokeStyle='#e3e9e1';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(cardX,cardY,cardW,cardH,14);ctx.fill();ctx.stroke();
-      ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 22px sans-serif';
-      group.title.forEach((line,index)=>ctx.fillText(line,cardX+20,cardY+34+index*30));
-      const badgeW=128,badgeH=34,badgeX=cardX+cardW-20-badgeW,badgeY=cardY+16;
+      ctx.textAlign='left';ctx.fillStyle='#303a32';ctx.font='700 20px sans-serif';
+      group.title.forEach((line,lineIndex)=>ctx.fillText(line,cardX+18,cardY+29+lineIndex*27));
+      const badgeW=112,badgeH=30,badgeX=cardX+18,badgeY=cardY+18+group.title.length*27+4;
       ctx.fillStyle='#e8f0e9';ctx.beginPath();ctx.roundRect(badgeX,badgeY,badgeW,badgeH,17);ctx.fill();
-      ctx.textAlign='center';ctx.fillStyle='#315d4b';ctx.font='700 16px sans-serif';ctx.fillText(`${group.count}회 관람`,badgeX+badgeW/2,badgeY+23);
-      let chipY=cardY+20+group.title.length*30+10;
+      ctx.textAlign='center';ctx.fillStyle='#315d4b';ctx.font='700 15px sans-serif';ctx.fillText(`${group.count}회 관람`,badgeX+badgeW/2,badgeY+21);
+      let chipY=badgeY+38;
       group.dateRows.forEach(row=>{
-        let chipX=cardX+20;
-        row.forEach(chip=>{
-          const chipH=28;ctx.fillStyle='#ffffff';ctx.strokeStyle='#e1e7df';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(chipX,chipY,chip.width,chipH,7);ctx.fill();ctx.stroke();
-          ctx.textAlign='center';ctx.fillStyle='#667166';ctx.font='15px sans-serif';ctx.fillText(chip.date,chipX+chip.width/2,chipY+19);
-          chipX+=chip.width+8;
+        let chipX=cardX+18;
+        row.forEach(dateChip=>{
+          const chipH=25;ctx.fillStyle='#ffffff';ctx.strokeStyle='#e1e7df';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(chipX,chipY,dateChip.width,chipH,7);ctx.fill();ctx.stroke();
+          ctx.textAlign='center';ctx.fillStyle='#667166';ctx.font='14px sans-serif';ctx.fillText(dateChip.date,chipX+dateChip.width/2,chipY+17);
+          chipX+=dateChip.width+8;
         });
-        chipY+=36;
+        chipY+=32;
       });
-      const footerY=cardY+cardH-54;ctx.strokeStyle='#dfe5dd';ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(cardX+20,footerY);ctx.lineTo(cardX+cardW-20,footerY);ctx.stroke();ctx.setLineDash([]);
-      ctx.textAlign='left';ctx.fillStyle='#737a70';ctx.font='16px sans-serif';ctx.fillText('공연 지출 합계',cardX+20,footerY+31);
-      ctx.textAlign='right';ctx.fillStyle='#315d4b';ctx.font='700 20px sans-serif';ctx.fillText(money(group.total),cardX+cardW-20,footerY+33);
+      const footerY=cardY+cardH-48;ctx.strokeStyle='#dfe5dd';ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(cardX+18,footerY);ctx.lineTo(cardX+cardW-18,footerY);ctx.stroke();ctx.setLineDash([]);
+      ctx.textAlign='left';ctx.fillStyle='#737a70';ctx.font='14px sans-serif';ctx.fillText('지출 합계',cardX+18,footerY+29);
+      ctx.textAlign='right';ctx.fillStyle='#315d4b';ctx.font='700 17px sans-serif';ctx.fillText(money(group.total),cardX+cardW-18,footerY+30);
+      });
       y+=cardH+14;
-    });
+    }
     y+=24;ctx.textAlign='center';ctx.fillStyle='#637267';ctx.font='17px sans-serif';ctx.fillText('당신의 2026년 공연 기록',width/2,y);
 
     canvas.toBlob(blob=>{

@@ -427,7 +427,7 @@ function renderReceipt(){
   const picked=events.filter(item=>item.selected),total=picked.reduce((sum,item)=>sum+asKrw(item.price,item.unit),0);
   $('total').textContent=money(total,'KRW');$('stickyTotal').textContent=money(total,'KRW');$('stickyCount').textContent=`선택한 공연 ${picked.length}회`;
   $('visitCount').textContent=`관람 ${picked.length}회 · 국가 ${new Set(picked.map(item=>item.country)).size}개`;
-  $('selectedEvents').innerHTML=picked.length?picked.map(item=>`<div class="selected-line"><span>${escapeHtml(item.date.slice(5))} · ${escapeHtml(item.title)}</span><b>${money(asKrw(item.price,item.unit),'KRW')}</b></div>`).join(''):'<p>선택한 공연이 없습니다.</p>';
+  $('selectedEvents').innerHTML=picked.length?picked.map(item=>`<div class="selected-line" data-members="${escapeHtml(item.members.join('|'))}"><span>${escapeHtml(item.date.slice(5))} · ${escapeHtml(item.title)}</span><b>${money(asKrw(item.price,item.unit),'KRW')}</b></div>`).join(''):'<p>선택한 공연이 없습니다.</p>';
 }
 function render(){renderFilters();renderEvents();renderReceipt();persist();renderTravelSummary()}
 
@@ -494,7 +494,7 @@ $('done').onclick=()=>{$('receipt').hidden=!$('receipt').hidden;$('done').textCo
 (async()=>{
   try{
     if(location.protocol==='file:')throw Error('HTML 파일을 직접 열면 브라우저가 JSON을 불러올 수 없습니다. 로컬 웹 서버에서 실행해 주세요.');
-    const scheduleUrl=new URL('data/events.json',document.baseURI);
+    const scheduleUrl=new URL('data/events.json?v=2',document.baseURI);
     const response=await fetch(scheduleUrl.href);
     if(!response.ok)throw Error(`${scheduleUrl.pathname} 요청 실패 (HTTP ${response.status})`);
     try{cfg=await response.json()}catch(error){throw Error(`${scheduleUrl.pathname} JSON 파싱 실패: ${error.message}`)}
