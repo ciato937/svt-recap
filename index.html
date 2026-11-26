@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="receipt-layout-overrides.css?v=1">
   <link rel="stylesheet" href="travel-location.css?v=4">
   <link rel="stylesheet" href="design-refresh.css?v=17">
-  <link rel="stylesheet" href="receipt-editorial.css?v=4">
+  <link rel="stylesheet" href="receipt-editorial.css?v=5">
   <script src="jp-ticket-options.js?v=1" defer></script>
   <script src="app.js?v=27" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
@@ -46,7 +46,6 @@
       </section>
       <aside id="receipt" class="panel receipt" hidden role="dialog" aria-modal="true" aria-labelledby="receiptTitle" tabindex="-1">
         <div class="receipt-toolbar"><h2 id="receiptTitle">공연 리캡 · 영수증</h2><button class="receipt-close" type="button" aria-label="영수증 닫기">×</button></div>
-        <div id="receiptPages" class="receipt-pages" aria-live="polite"></div>
         <details class="receipt-tools">
           <summary>이동 거리 설정 및 상세 계산</summary>
           <section class="receipt-travel" aria-labelledby="travelTitle">
@@ -65,6 +64,7 @@
             </details>
           </section>
         </details>
+        <div id="receiptPages" class="receipt-pages" aria-live="polite"></div>
         <div class="receipt-actions">
           <button id="saveReceiptImage" class="receipt-share" type="button">이미지 3장 저장</button>
           <button id="shareReceiptImages" type="button">이미지 공유</button>
