@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="receipt-enhancements.css?v=2">
   <link rel="stylesheet" href="receipt-layout-overrides.css?v=1">
   <script src="jp-ticket-options.js?v=1" defer></script>
-  <script src="app.js?v=6" defer></script>
+  <script src="app.js?v=7" defer></script>
   <script src="random-nickname.js?v=1" defer></script>
   <script src="receipt-modal.js?v=1" defer></script>
   <script src="receipt-enhancements.js?v=3" defer></script>
@@ -38,7 +38,7 @@
           <details><summary id="categorySummary">전체 유형</summary><div id="categories" class="menu"></div></details>
         </section>
         <section class="panel">
-          <div class="heading"><h2>공연 목록</h2><div class="event-actions"><button id="selectVisibleEvents" type="button">공연 전체 선택</button><button id="clearVisibleEvents" type="button">전체 해제</button></div></div>
+          <div class="heading"><h2>공연 목록</h2><div class="event-actions"><span id="count" role="status" aria-live="polite"></span><button id="selectVisibleEvents" type="button">공연 전체 선택</button><button id="clearVisibleEvents" type="button">전체 해제</button></div></div>
           <div id="events" class="events"></div>
         </section>
       </section>
