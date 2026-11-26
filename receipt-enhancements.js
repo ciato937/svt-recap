@@ -108,7 +108,21 @@
     const memberCols=3,memberGap=12,memberCellW=(contentWidth-memberGap*(memberCols-1))/memberCols,memberRowH=48;
     const memberRows=Math.ceil(counts.length/memberCols),monthCols=3,monthGap=12,monthRowH=64;
     const monthCellW=(contentWidth-monthGap*(monthCols-1))/monthCols,monthRows=Math.ceil(monthly.length/monthCols);
-    const page1Height=82+52+58+18+132+22+112+30+34+memberRows*memberRowH+22+34+monthRows*monthRowH+100;
+    const travelSummary=document.getElementById('travelSummary');
+    const travelDistance=travelSummary?.querySelector('.travel-distance-value')?.textContent?.trim()||'';
+    const travelOrigin=document.getElementById('homeAddressInput')?.value?.trim()||'출발지 미설정';
+    const travelStatus=travelSummary?.querySelector('.travel-distance-hero small')?.textContent?.trim()||'';
+    const travelMessage=travelSummary?.querySelector('.travel-empty')?.textContent?.trim()||'거리 정보가 아직 계산되지 않았습니다.';
+    page1Measure.font='16px sans-serif';
+    const travelItems=[...(travelSummary?.querySelectorAll('.travel-detail-item')||[])].map(item=>({
+      label:item.querySelector('span')?.textContent?.trim()||'',
+      value:item.querySelector('strong')?.textContent?.trim()||'',
+      wide:item.classList.contains('wide')
+    }));
+    const travelMetrics=travelItems.filter(item=>!item.wide),travelWide=travelItems.filter(item=>item.wide);
+    const travelMetricRows=Math.ceil(travelMetrics.length/2);
+    const travelBlockHeight=travelDistance?34+116+12+travelMetricRows*76+travelWide.length*70+28+12:34+80;
+    const page1Height=82+52+58+18+132+22+112+30+travelBlockHeight+34+memberRows*memberRowH+22+34+monthRows*monthRowH+100;
     page1.width=width;page1.height=Math.max(700,page1Height);
     const ctx=page1.getContext('2d');if(!ctx)return;
     paintPage(ctx,page1);
@@ -124,6 +138,40 @@
     [0,1].forEach(index=>{const x=padding+index*(statW+statGap);ctx.fillStyle=index?'#eef2fa':'#fff1f2';ctx.strokeStyle=index?'#92a8d1':'#f7cac9';ctx.beginPath();ctx.roundRect(x,y,statW,statH,14);ctx.fill();ctx.stroke()});
     ctx.textAlign='center';ctx.fillStyle='#8d526e';ctx.font='700 46px sans-serif';ctx.fillText(String(rows.length),padding+statW/2,y+55);ctx.fillStyle='#566d92';ctx.fillText(String(countries),padding+statW+statGap+statW/2,y+55);
     ctx.fillStyle='#777583';ctx.font='20px sans-serif';ctx.fillText('공연 관람',padding+statW/2,y+86);ctx.fillText('방문 국가',padding+statW+statGap+statW/2,y+86);y+=statH+30;
+
+    drawSectionTitle(ctx,'공연 이동 거리',padding,y);y+=34;
+    if(travelDistance){
+      const heroH=116;
+      roundedCard(ctx,padding,y,contentWidth,heroH,'#fff0f2','#f1dce2',14);
+      ctx.textAlign='left';ctx.fillStyle='#6c596d';ctx.font='700 17px sans-serif';ctx.fillText('선택 일정 왕복 직선거리',padding+18,y+28);
+      ctx.fillStyle='#844f6a';ctx.font='700 34px sans-serif';ctx.fillText(travelDistance,padding+18,y+68);
+      ctx.fillStyle='#777583';ctx.font='13px sans-serif';
+      const travelMeta=travelStatus||`출발지: ${travelOrigin}`;
+      wrapText(ctx,travelMeta,contentWidth-36).slice(0,2).forEach((line,index)=>ctx.fillText(line,padding+18,y+91+index*16));y+=heroH+12;
+
+      const travelGap=10,travelCellW=(contentWidth-travelGap)/2,metricCardH=66;
+      for(let index=0;index<travelMetrics.length;index+=2){
+        travelMetrics.slice(index,index+2).forEach((item,column)=>{
+          const x=padding+column*(travelCellW+travelGap),fill=(index/2+column)%2?'#eef2fa':'#fff7f7',stroke=(index/2+column)%2?'#dce3f0':'#f1dce2';
+          roundedCard(ctx,x,y,travelCellW,metricCardH,fill,stroke,10);
+          ctx.textAlign='left';ctx.fillStyle='#777583';ctx.font='13px sans-serif';ctx.fillText(item.label,x+12,y+23);
+          ctx.fillStyle=(index/2+column)%2?'#566d92':'#8d526e';ctx.font='700 18px sans-serif';ctx.fillText(item.value,x+12,y+49);
+        });
+        y+=metricCardH+10;
+      }
+      travelWide.forEach(item=>{
+        roundedCard(ctx,padding,y,contentWidth,58,'#f5f7fb','#dce3f0',10);
+        ctx.textAlign='left';ctx.fillStyle='#777583';ctx.font='12px sans-serif';ctx.fillText(item.label,padding+14,y+20);
+        ctx.fillStyle='#4f6282';ctx.font='700 16px sans-serif';ctx.fillText(item.value,padding+14,y+43);y+=70;
+      });
+      ctx.textAlign='left';ctx.fillStyle='#777583';ctx.font='12px sans-serif';ctx.fillText('직선거리 합계이며 실제 도로 거리와 다를 수 있습니다.',padding,y+15);y+=28;
+      y+=12;
+    }else{
+      roundedCard(ctx,padding,y,contentWidth,58,'#f4f6fb','#dce3f0',10);
+      ctx.textAlign='left';ctx.fillStyle='#696a78';ctx.font='16px sans-serif';
+      wrapText(ctx,travelMessage,contentWidth-32).slice(0,2).forEach((line,index)=>ctx.fillText(line,padding+16,y+25+index*21));
+      y+=80;
+    }
 
     drawSectionTitle(ctx,'함께한 멤버',padding,y);y+=34;
     if(counts.length){

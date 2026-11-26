@@ -385,10 +385,12 @@ async function nominatimAddressSearch(query){
 }
 function renderTravelSummary(){
   const summary=$('travelSummary');
+  const preview=$('travelDistancePreview');
   if($('receipt').hidden)return;
-  if(!homeLocation){summary.textContent='출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.';$('routeStatusMsg').textContent='출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.';return}
+  const showTravelMessage=message=>{summary.innerHTML=`<p class="travel-empty">${escapeHtml(message)}</p>`};
+  if(!homeLocation){showTravelMessage('출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.');preview.textContent='출발지 설정';$('routeStatusMsg').textContent='출발지를 설정하면 선택한 공연장까지의 거리를 계산합니다.';return}
   const selected=events.filter(item=>item.selected);
-  if(!selected.length){summary.textContent='공연을 선택하면 왕복 거리를 계산합니다.';$('routeStatusMsg').textContent=`출발지: ${homeLocation.label}`;return}
+  if(!selected.length){showTravelMessage('공연을 선택하면 왕복 거리를 계산합니다.');preview.textContent='공연 선택';$('routeStatusMsg').textContent=`출발지: ${homeLocation.label}`;return}
   const locations=[...new Map(selected.map(item=>[venueKey(item),item])).values()];
   const results=locations.map(item=>({key:venueKey(item),coords:coordinatesForEvent(item)}));
   const resolved=new Map(results.map(result=>[result.key,result.coords]));
@@ -397,14 +399,17 @@ function renderTravelSummary(){
   const details=calcTravelDetails(selected,homeLocation);
   const cityFallbacks=results.filter(result=>result.coords?.precision==='city').length;
   const countryFallbacks=results.filter(result=>result.coords?.precision==='country').length;
-  const detailLines=[
-    `계산 완료: ${calculated}/${selected.length}개 일정 · 왕복 약 ${details.totalKm.toFixed(1)} km${failures.length?' (일부 제외)':''}`,
-    `국내 ${details.domesticKm.toFixed(1)} km (${details.domesticRatio}%) · 해외 ${details.intlKm.toFixed(1)} km (${details.intlRatio}%)`,
-    `예상 이동 시간 ${details.totalTravelTime} · 비행 시간 ${details.flightTime} · 해외 왕복 비행 ${details.flightTakeoffs}회`,
-    `해외 이동 환산 ${details.estimatedMiles.toLocaleString('ko-KR')} mi · 공연당 평균 ${details.avgKmPerEvent} km`,
-    `가장 먼 공연 ${details.farthest.name} (${details.farthest.km.toFixed(1)} km) · 가장 가까운 공연 ${details.closest.name} (${details.closest.km.toFixed(1)} km)`
+  const travelRows=[
+    ['국내 이동',`${details.domesticKm.toFixed(1)} km · ${details.domesticRatio}%`],
+    ['해외 이동',`${details.intlKm.toFixed(1)} km · ${details.intlRatio}%`],
+    ['예상 이동 시간',details.totalTravelTime],
+    ['비행 시간 · 왕복 횟수',`${details.flightTime} · ${details.flightTakeoffs}회`],
+    ['마일 환산 · 공연당 평균',`${details.estimatedMiles.toLocaleString('ko-KR')} mi · ${details.avgKmPerEvent} km`,'wide'],
+    ['가장 먼 공연',`${details.farthest.name} · ${details.farthest.km.toFixed(1)} km`,'wide'],
+    ['가장 가까운 공연',`${details.closest.name} · ${details.closest.km.toFixed(1)} km`,'wide']
   ];
-  summary.textContent=detailLines.join('\n');
+  preview.textContent=`왕복 ${details.totalKm.toFixed(1)} km`;
+  summary.innerHTML=`<div class="travel-distance-hero"><div><span>선택 일정 왕복 직선거리</span><small>${escapeHtml(homeLocation.label)} 출발 · ${calculated}/${selected.length}개 일정 계산${failures.length?' · 일부 좌표 미확인':''}</small></div><strong class="travel-distance-value">${details.totalKm.toFixed(1)} km</strong></div><div class="travel-detail-grid">${travelRows.map(([label,value,size=''])=>`<div class="travel-detail-item ${size}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join('')}</div>`;
   if(failures.length){
     const failedVenues=[...new Set(failures.map(item=>item.key.split('|')[1]))];
     $('routeStatusMsg').textContent=`내장 좌표를 찾지 못했습니다: ${failedVenues.join(', ')}`;

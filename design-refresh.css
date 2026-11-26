@@ -303,3 +303,29 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 #receipt .receipt-divider { color: #9c6d88; }
 #receipt .receipt-divider:before, #receipt .receipt-divider:after { background: repeating-linear-gradient(90deg, #d9c4d1 0 4px, transparent 4px 8px); }
 #receipt .group-total small, #receipt .receipt-footnote { color: #817b89; }
+#receipt .travel-details { margin-top: 12px; padding-top: 10px; border-color: #dfe5ef; }
+#receipt .travel-details > summary { min-height: 44px; padding: 10px 12px; border: 1px solid #dce3ef; border-radius: 10px; background: linear-gradient(100deg, #fff2f3, #eef2fa); color: #526888; font-size: 13px; }
+#receipt #travelDistancePreview { margin-left: auto; color: #87526d; font-size: 12px; font-weight: 700; white-space: nowrap; }
+#receipt .travel-details > summary::after { font-size: 20px; }
+#receipt #travelSummary { display: grid; gap: 9px; margin-top: 10px; white-space: normal; font-weight: 400; }
+#receipt .travel-empty { margin: 0; padding: 12px; border: 1px dashed #d9dfea; border-radius: 10px; background: #f6f7fb; color: #696a78; font-size: 13px; line-height: 1.6; }
+#receipt .travel-distance-hero { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 13px 15px; border: 1px solid #e7cad6; border-radius: 12px; background: linear-gradient(110deg, #fff0f1, #f0f4fb); }
+#receipt .travel-distance-hero > div { display: grid; gap: 4px; min-width: 0; }
+#receipt .travel-distance-hero span { color: #684e61; font-size: 12px; font-weight: 700; }
+#receipt .travel-distance-hero small { color: #777583; font-size: 11px; line-height: 1.45; overflow-wrap: anywhere; }
+#receipt .travel-distance-value { color: #844f6a; font-size: clamp(22px,5vw,29px); line-height: 1.1; white-space: nowrap; }
+#receipt .travel-detail-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+#receipt .travel-detail-item { display: grid; align-content: start; gap: 4px; min-width: 0; padding: 9px 10px; border: 1px solid #eadfe7; border-radius: 9px; background: #fff7f8; }
+#receipt .travel-detail-item:nth-child(even) { border-color: #e0e5ef; background: #f4f6fb; }
+#receipt .travel-detail-item.wide { grid-column: 1 / -1; }
+#receipt .travel-detail-item span { color: #777583; font-size: 10px; line-height: 1.4; }
+#receipt .travel-detail-item strong { color: #514653; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+#receipt .travel-detail-item:nth-child(even) strong { color: #4f6282; }
+#receipt .travel-note { margin-top: 2px; padding: 10px 12px; border-left: 3px solid #92a8d1; border-radius: 0 8px 8px 0; background: #f5f7fb; color: #666675; font-size: 12px; line-height: 1.7; }
+#receipt .travel-note a { color: #526888; }
+@media (max-width: 420px) {
+  #receipt .travel-distance-hero { grid-template-columns: 1fr; gap: 8px; }
+  #receipt .travel-distance-value { font-size: 27px; }
+  #receipt .travel-detail-item { padding: 8px; }
+  #receipt .travel-detail-item strong { font-size: 11px; }
+}
