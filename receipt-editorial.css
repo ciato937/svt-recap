@@ -240,66 +240,6 @@
   text-align: right;
 }
 
-#receipt .most-met-member {
-  padding: 4px 0 16px;
-  border-bottom: 1px solid rgba(35,31,32,.24);
-}
-
-#receipt .most-met-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 5px;
-}
-
-#receipt .most-met-item {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 5px;
-  min-width: 0;
-  padding: 8px 8px 6px 0;
-  border-bottom: 1px solid rgba(35,31,32,.2);
-}
-
-#receipt .most-met-item + .most-met-item {
-  padding-left: 8px;
-  border-left: 1px solid rgba(35,31,32,.18);
-}
-
-#receipt .most-met-item strong {
-  font-size: 13px;
-  font-weight: 900;
-  overflow-wrap: anywhere;
-}
-
-#receipt .most-met-item span {
-  flex: 0 0 auto;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-#receipt .most-met-item small {
-  margin-left: 2px;
-  color: #574A4E;
-  font-size: 9px;
-  font-weight: 500;
-}
-
-#receipt .most-met-empty {
-  grid-column: 1 / -1;
-  margin: 8px 0 0;
-  color: #574A4E;
-  font-size: 12px;
-}
-
-#receipt .most-met-member > .editorial-label {
-  margin-bottom: 3px;
-}
-
-#receipt .most-met-member > .most-met-list {
-  min-height: 34px;
-}
-
 #receipt .member-list,
 #receipt .monthly-list {
   margin-top: 15px;
@@ -340,47 +280,62 @@
   font-weight: 800;
 }
 
-#receipt .member-row small,
-#receipt .monthly-editorial-row small {
+#receipt .member-row small {
   margin-left: 3px;
   color: #574A4E;
   font-size: 9px;
   font-weight: 500;
 }
 
-#receipt .monthly-list > div {
+#receipt .monthly-chart {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-#receipt .monthly-editorial-row {
-  display: grid;
-  grid-template-columns: 36px 36px minmax(0, 1fr);
-  align-items: baseline;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 3px;
+  margin-top: 10px;
+}
+
+#receipt .monthly-chart-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-width: 0;
-  padding: 9px 5px 8px 0;
-  border-bottom: 1px solid rgba(35,31,32,.16);
-  font-size: 10px;
+  color: #231F20;
+  font-size: 9px;
 }
 
-#receipt .monthly-editorial-row:nth-child(even) {
-  padding-left: 9px;
-  border-left: 1px solid rgba(35,31,32,.18);
-}
-
-#receipt .monthly-editorial-row > strong,
-#receipt .monthly-editorial-row > span {
+#receipt .monthly-chart-value {
+  min-height: 12px;
+  margin-bottom: 3px;
+  font-size: 8px;
   font-weight: 700;
-}
-
-#receipt .monthly-editorial-row > b {
-  overflow: hidden;
-  font-size: 10px;
-  font-weight: 700;
-  text-align: right;
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+#receipt .monthly-chart-track {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 120px;
+  border-bottom: 1px solid rgba(35,31,32,.35);
+}
+
+#receipt .monthly-chart-bar {
+  display: block;
+  width: 100%;
+  height: var(--bar-height, 0%);
+  background: #526B88;
+}
+
+#receipt .monthly-chart-month {
+  margin-top: 5px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+#receipt .monthly-chart-column > small {
+  color: #574A4E;
+  font-size: 8px;
+  font-weight: 500;
 }
 
 #receipt .archive-list {
@@ -424,54 +379,6 @@
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
-}
-
-#receipt .archive-visual {
-  margin-top: 23px;
-}
-
-#receipt .archive-bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 112px;
-  margin-top: 10px;
-  border-bottom: 1px solid rgba(35,31,32,.35);
-}
-
-#receipt .archive-bar-column {
-  display: flex;
-  flex: 1 1 0;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 0;
-  height: 110px;
-  color: #574A4E;
-  font-size: 9px;
-}
-
-#receipt .archive-bar {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 3px;
-  width: 100%;
-  max-width: 34px;
-}
-
-#receipt .ticket-stub {
-  display: block;
-  height: 11px;
-  background: #E8BFC7;
-}
-
-#receipt .ticket-stub.stub-blue {
-  background: #9BAAC0;
-}
-
-#receipt .archive-bar-column > span {
-  margin-top: 5px;
 }
 
 #receipt .empty-editorial {

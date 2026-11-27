@@ -85,13 +85,6 @@
     return [...counts];
   }
 
-  function getTopMembers(members) {
-    return members
-      .filter(([, count]) => count > 0)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
-  }
-
   function getCountryCount() {
     const match = (document.getElementById('visitCount')?.textContent || '').match(/국가\s*(\d+)개/);
     return Number(match?.[1]) || 0;
@@ -107,6 +100,16 @@
     });
     return [...months.entries()].sort((a, b) => a[0] - b[0]).map(([month, stats]) => ({month, ...stats}));
   }
+
+  function getYearlySeries() {
+    const totals = new Map(getMonthlyTotals().map(item => [item.month, item]));
+    return Array.from({length: 12}, (_, index) => {
+      const month = index + 1;
+      return {month, count: totals.get(month)?.count || 0, spend: totals.get(month)?.spend || 0};
+    });
+  }
+
+  const moneyShort = value => value ? `${Math.round(value / 1000) / 10}만` : '';
 
   function getArchive() {
     const grouped = new Map();
@@ -179,11 +182,11 @@
     if (!pages) return;
     const rows = readRows();
     const members = readMemberCounts();
-    const monthly = getMonthlyTotals();
+    const monthly = getYearlySeries();
+    const maxSpend = Math.max(1, ...monthly.map(item => item.spend));
     const archive = getArchive();
     const total = document.getElementById('total')?.textContent?.trim() || '₩0';
     const countryCount = getCountryCount();
-    const topMembers = getTopMembers(members);
     const travel = getTravelData();
     const travelMetrics = [
       ...travel.items.filter(item => !item.label.includes('가장 먼') && !item.label.includes('가장 가까운')),
@@ -205,15 +208,13 @@
       </section>
       <section class="receipt-page page-members" aria-label="2페이지 함께한 멤버 및 월별 관람">
         <header class="editorial-heading editorial-heading-compact"><span class="editorial-word">MEMORY</span><div class="editorial-heading-row"><h3>함께한 멤버 · 월별 기록</h3><span>${rows.length}회 관람</span></div></header>
-        <section class="most-met-member"><span class="editorial-label">( 가장 많이 만난 멤버 )</span><div class="most-met-list">${topMembers.length ? topMembers.map(([name, count]) => `<div class="most-met-item"><strong>${escapeHtml(name)}</strong><span>${count}<small>회</small></span></div>`).join('') : '<p class="most-met-empty">아직 기록이 없습니다</p>'}</div></section>
         <section class="member-list"><h4>함께한 멤버</h4><div class="member-grid" style="--member-rows:${Math.ceil(members.length / 2)}">${members.map(([name, count]) => `<div class="member-row"><strong>${escapeHtml(name)}</strong><span>${count}<small>회</small></span></div>`).join('')}</div></section>
-        <section class="monthly-list"><h4>월별 관람 · 지출</h4><div>${monthly.map(item => `<div class="monthly-editorial-row"><strong>${monthName(item.month)}</strong><span>${item.count}<small>회</small></span><b>${money(item.spend)}</b></div>`).join('') || '<p class="empty-editorial">선택한 공연이 없습니다.</p>'}</div></section>
+        <section class="monthly-list"><h4>월별 관람 · 지출</h4>${rows.length ? `<div class="monthly-chart" role="img" aria-label="월별 지출을 나타내는 막대 그래프">${monthly.map(item => `<div class="monthly-chart-column"><span class="monthly-chart-value">${moneyShort(item.spend)}</span><div class="monthly-chart-track"><i class="monthly-chart-bar" style="--bar-height:${(item.spend / maxSpend * 100).toFixed(1)}%"></i></div><span class="monthly-chart-month">${item.month}월</span><small>${item.count}회</small></div>`).join('')}</div>` : '<p class="empty-editorial">선택한 공연이 없습니다.</p>'}</section>
         ${pageFooter('2/3')}
       </section>
       <section class="receipt-page page-archive" aria-label="3페이지 함께한 공연 아카이브">
         <header class="editorial-heading editorial-heading-compact"><span class="editorial-word">ARCHIVE</span><div class="editorial-heading-row"><h3>함께한 공연</h3><span>${rows.length}회 관람 · ${archive.length}개 공연</span></div></header>
         <div class="archive-list">${archive.map(group => `<article class="archive-row"><div class="archive-info"><strong>${escapeHtml(group.title)}</strong><p>${group.count}회 관람 <span>·</span> ${group.dates.map(escapeHtml).join(' · ')}</p></div><strong class="archive-total">${money(group.total)}</strong></article>`).join('') || '<p class="empty-editorial">선택한 공연이 없습니다.</p>'}</div>
-        <section class="archive-visual"><span class="editorial-label">( 관람한 공연의 기록 )</span><div class="archive-bars" role="img" aria-label="공연별 관람 횟수를 나타내는 티켓 스텁 그래프">${archive.map((group, index) => `<div class="archive-bar-column"><div class="archive-bar" data-visits="${group.count}" aria-label="${escapeHtml(group.title)} ${group.count}회">${Array.from({length: group.count}, () => `<i class="ticket-stub ${index % 2 ? 'stub-blue' : ''}"></i>`).join('')}</div><span>${String(index + 1).padStart(2, '0')}</span></div>`).join('')}</div></section>
         ${pageFooter('3/3')}
       </section>`;
   }
@@ -351,37 +352,12 @@
     ctx.fillStyle = '#231F20';
     ctx.font = '700 28px sans-serif';
     ctx.fillText('함께한 멤버 · 월별 기록', left, 355);
-    drawLabel(ctx, '가장 많이 만난 멤버', left, 440, 20);
-    if (data.topMembers.length) {
-      const columns = data.topMembers.length, cellWidth = width / columns;
-      data.topMembers.forEach(([name, count], index) => {
-        const x = left + index * cellWidth;
-        ctx.textAlign = 'left';
-        ctx.fillStyle = '#231F20';
-        ctx.font = '800 23px sans-serif';
-        ctx.fillText(name, x + 10, 500);
-        ctx.textAlign = 'right';
-        ctx.font = '700 19px sans-serif';
-        ctx.fillText(`${count}회`, x + cellWidth - 10, 500);
-        if (index) {
-          ctx.strokeStyle = 'rgba(35,31,32,.18)';
-          ctx.beginPath();
-          ctx.moveTo(x, 470);
-          ctx.lineTo(x, 515);
-          ctx.stroke();
-        }
-      });
-    } else {
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#574A4E';
-      ctx.font = '500 20px sans-serif';
-      ctx.fillText('아직 기록이 없습니다', left, 500);
-    }
-    drawRule(ctx, left, 535, width);
+    drawRule(ctx, left, 400, width);
 
+    ctx.fillStyle = '#231F20';
     ctx.font = '800 28px sans-serif';
-    ctx.fillText('함께한 멤버', left, 585);
-    const memberTop = 625, memberHeight = 38, memberRows = Math.ceil(data.members.length / 2);
+    ctx.fillText('함께한 멤버', left, 440);
+    const memberTop = 480, memberHeight = 38, memberRows = Math.ceil(data.members.length / 2);
     data.members.forEach(([name, count], index) => {
       const column = Math.floor(index / memberRows), row = index % memberRows;
       const cellLeft = left + column * (width / 2), cellWidth = width / 2;
@@ -402,38 +378,33 @@
     ctx.font = '800 28px sans-serif';
     ctx.fillText('월별 관람 · 지출', left, monthsTop);
     drawRule(ctx, left, monthsTop + 18, width);
-    const monthTop = monthsTop + 52, columns = 2, cellW = width / columns, monthHeight = 60;
+    const chartBottom = monthsTop + 400, chartHeight = 280, columnWidth = width / 12;
+    const maxSpend = Math.max(1, ...data.monthly.map(item => item.spend));
     data.monthly.forEach((item, index) => {
-      const row = Math.floor(index / columns), column = index % columns;
-      const x = left + column * cellW + 8, y = monthTop + row * monthHeight;
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#231F20';
-      ctx.font = '800 22px sans-serif';
-      ctx.fillText(monthName(item.month), x, y + 25);
-      ctx.textAlign = 'right';
-      ctx.font = '600 19px sans-serif';
-      ctx.fillText(`${item.count}회`, x + cellW - 22, y + 25);
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#574A4E';
-      ctx.font = '600 19px sans-serif';
-      ctx.fillText(money(item.spend), x, y + 50);
-      if (column) {
-        ctx.strokeStyle = 'rgba(35,31,32,.18)';
-        ctx.beginPath();
-        ctx.moveTo(left + cellW, y + 4);
-        ctx.lineTo(left + cellW, y + 53);
-        ctx.stroke();
+      const x = left + index * columnWidth, centerX = x + columnWidth / 2;
+      const barWidth = columnWidth * 0.56, barHeight = item.spend / maxSpend * chartHeight;
+      if (barHeight) {
+        ctx.fillStyle = '#526B88';
+        ctx.fillRect(centerX - barWidth / 2, chartBottom - barHeight, barWidth, barHeight);
       }
-      if (column === 1 || index === data.monthly.length - 1) drawRule(ctx, left, y + monthHeight - 3, width);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#231F20';
+      ctx.font = '700 17px sans-serif';
+      if (item.spend) ctx.fillText(moneyShort(item.spend), centerX, chartBottom - barHeight - 10);
+      ctx.font = '800 20px sans-serif';
+      ctx.fillText(monthName(item.month), centerX, chartBottom + 32);
+      ctx.fillStyle = '#574A4E';
+      ctx.font = '600 16px sans-serif';
+      ctx.fillText(`${item.count}회`, centerX, chartBottom + 58);
     });
+    drawRule(ctx, left, chartBottom, width);
     drawPageFooter(ctx, canvas, '2/3');
     return canvas;
   }
 
   function drawPageThree(data) {
     const rowTop = 425, rowHeight = 100;
-    const graphTop = Math.max(rowTop + data.archive.length * rowHeight + 28, 1320);
-    const {canvas, ctx} = createPageCanvas(Math.max(1600, graphTop + 162 + 90));
+    const {canvas, ctx} = createPageCanvas(Math.max(1600, rowTop + data.archive.length * rowHeight + 120));
     const left = 78, width = canvas.width - left * 2;
     ctx.fillStyle = '#40566F';
     ctx.textAlign = 'left';
@@ -469,23 +440,6 @@
       drawRule(ctx, left, y + rowHeight - 3, width);
     });
 
-    drawLabel(ctx, '관람한 공연의 기록', left, graphTop, 18);
-    const graphBottom = graphTop + 162;
-    const gap = 16, columnWidth = data.archive.length ? (width - gap * (data.archive.length - 1)) / data.archive.length : width;
-    const maxVisits = Math.max(1, ...data.archive.map(group => group.count));
-    data.archive.forEach((group, index) => {
-      const x = left + index * (columnWidth + gap);
-      const stubHeight = Math.max(12, 112 / maxVisits);
-      for (let visit = 0; visit < group.count; visit++) {
-        const y = graphBottom - 26 - (visit + 1) * stubHeight;
-        ctx.fillStyle = visit % 2 ? '#526B88' : '#E8BFC7';
-        ctx.fillRect(x, y, columnWidth, Math.max(2, stubHeight - 2));
-      }
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#574A4E';
-      ctx.font = '600 15px sans-serif';
-      ctx.fillText(String(index + 1).padStart(2, '0'), x + columnWidth / 2, graphBottom);
-    });
     drawPageFooter(ctx, canvas, '3/3');
     return canvas;
   }
@@ -500,16 +454,14 @@
   function buildCanvases() {
     const rows = readRows();
     const members = readMemberCounts();
-    const monthly = getMonthlyTotals();
+    const monthly = getYearlySeries();
     const archive = getArchive();
     const travel = getTravelData();
-    const topMembers = getTopMembers(members);
     const data = {
       rows,
       members,
       monthly,
       archive,
-      topMembers,
       total: document.getElementById('total')?.textContent?.trim() || '₩0',
       countryCount: getCountryCount(),
       travel,
