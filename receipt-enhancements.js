@@ -378,7 +378,7 @@
     ctx.font = '800 28px sans-serif';
     ctx.fillText('월별 관람 · 지출', left, monthsTop);
     drawRule(ctx, left, monthsTop + 18, width);
-    const chartBottom = monthsTop + 400, chartHeight = 280, columnWidth = width / 12;
+    const chartBottom = monthsTop + 480, chartHeight = 380, columnWidth = width / 12;
     const maxSpend = Math.max(1, ...data.monthly.map(item => item.spend));
     data.monthly.forEach((item, index) => {
       const x = left + index * columnWidth, centerX = x + columnWidth / 2;
@@ -403,8 +403,9 @@
   }
 
   function drawPageThree(data) {
-    const rowTop = 425, rowHeight = 100;
-    const {canvas, ctx} = createPageCanvas(Math.max(1600, rowTop + data.archive.length * rowHeight + 120));
+    const rowTop = 425, pageHeight = 1600;
+    const rowHeight = data.archive.length ? Math.max(100, (pageHeight - rowTop - 150) / data.archive.length) : 100;
+    const {canvas, ctx} = createPageCanvas(Math.max(pageHeight, rowTop + data.archive.length * rowHeight + 150));
     const left = 78, width = canvas.width - left * 2;
     ctx.fillStyle = '#40566F';
     ctx.textAlign = 'left';
@@ -424,15 +425,18 @@
 
     data.archive.forEach((group, index) => {
       const y = rowTop + index * rowHeight;
+      ctx.font = '800 23px sans-serif';
+      const moneyWidth = ctx.measureText(money(group.total)).width;
+      const nameWidth = width - moneyWidth - 36;
       ctx.textAlign = 'left';
       ctx.fillStyle = '#231F20';
       ctx.font = '800 25px sans-serif';
-      const titleLines = wrapText(ctx, group.title, width - 310).slice(0, 2);
+      const titleLines = wrapText(ctx, group.title, nameWidth).slice(0, 2);
       titleLines.forEach((line, lineIndex) => ctx.fillText(line, left, y + 28 + lineIndex * 30));
       ctx.fillStyle = '#574A4E';
       ctx.font = '500 16px sans-serif';
       const details = `${group.count}회 관람 · ${group.dates.join(' · ')}`;
-      wrapText(ctx, details, width - 310).slice(0, 2).forEach((line, lineIndex) => ctx.fillText(line, left, y + 68 + lineIndex * 21));
+      wrapText(ctx, details, nameWidth).slice(0, 2).forEach((line, lineIndex) => ctx.fillText(line, left, y + 68 + lineIndex * 21));
       ctx.textAlign = 'right';
       ctx.fillStyle = '#231F20';
       ctx.font = '800 23px sans-serif';
