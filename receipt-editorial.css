@@ -245,11 +245,59 @@
   border-bottom: 1px solid rgba(35,31,32,.24);
 }
 
-#receipt .most-met-member > strong {
-  display: block;
+#receipt .most-met-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 5px;
-  font-size: 22px;
+}
+
+#receipt .most-met-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 5px;
+  min-width: 0;
+  padding: 8px 8px 6px 0;
+  border-bottom: 1px solid rgba(35,31,32,.2);
+}
+
+#receipt .most-met-item + .most-met-item {
+  padding-left: 8px;
+  border-left: 1px solid rgba(35,31,32,.18);
+}
+
+#receipt .most-met-item strong {
+  font-size: 13px;
   font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+#receipt .most-met-item span {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+#receipt .most-met-item small {
+  margin-left: 2px;
+  color: #574A4E;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+#receipt .most-met-empty {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  color: #574A4E;
+  font-size: 12px;
+}
+
+#receipt .most-met-member > .editorial-label {
+  margin-bottom: 3px;
+}
+
+#receipt .most-met-member > .most-met-list {
+  min-height: 34px;
 }
 
 #receipt .member-list,
@@ -509,7 +557,7 @@
 
 #receipt .receipt-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
   margin-top: 12px;
 }
@@ -564,12 +612,6 @@
   font-size: 11px;
   font-weight: 700;
   text-decoration: none;
-}
-
-#receipt .receipt-share-status {
-  margin: 8px 0 0;
-  color: #fff;
-  font-size: 11px;
 }
 
 #receipt #receiptData {

@@ -4,9 +4,7 @@
   const eventList = document.getElementById('events');
   const pages = document.getElementById('receiptPages');
   const saveButton = document.getElementById('saveReceiptImage');
-  const shareButton = document.getElementById('shareReceiptImages');
   const downloadBox = document.getElementById('receiptImageDownloads');
-  const shareStatus = document.getElementById('receiptShareStatus');
   let receiptDownloadUrls = [];
 
   const money = value => `₩${Math.round(value).toLocaleString('ko-KR')}`;
@@ -85,6 +83,13 @@
       });
     });
     return [...counts];
+  }
+
+  function getTopMembers(members) {
+    return members
+      .filter(([, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
   }
 
   function getCountryCount() {
@@ -178,7 +183,7 @@
     const archive = getArchive();
     const total = document.getElementById('total')?.textContent?.trim() || '₩0';
     const countryCount = getCountryCount();
-    const mostMet = [...members].sort((a, b) => b[1] - a[1])[0];
+    const topMembers = getTopMembers(members);
     const travel = getTravelData();
     const travelMetrics = [
       ...travel.items.filter(item => !item.label.includes('가장 먼') && !item.label.includes('가장 가까운')),
@@ -200,7 +205,7 @@
       </section>
       <section class="receipt-page page-members" aria-label="2페이지 함께한 멤버 및 월별 관람">
         <header class="editorial-heading editorial-heading-compact"><span class="editorial-word">MEMORY</span><div class="editorial-heading-row"><h3>함께한 멤버 · 월별 기록</h3><span>${rows.length}회 관람</span></div></header>
-        <section class="most-met-member"><span class="editorial-label">( 가장 많이 만난 멤버 )</span><strong>${mostMet?.[1] ? `${escapeHtml(mostMet[0])} · ${mostMet[1]}회` : '아직 기록이 없습니다'}</strong></section>
+        <section class="most-met-member"><span class="editorial-label">( 가장 많이 만난 멤버 )</span><div class="most-met-list">${topMembers.length ? topMembers.map(([name, count]) => `<div class="most-met-item"><strong>${escapeHtml(name)}</strong><span>${count}<small>회</small></span></div>`).join('') : '<p class="most-met-empty">아직 기록이 없습니다</p>'}</div></section>
         <section class="member-list"><h4>함께한 멤버</h4><div class="member-grid" style="--member-rows:${Math.ceil(members.length / 2)}">${members.map(([name, count]) => `<div class="member-row"><strong>${escapeHtml(name)}</strong><span>${count}<small>회</small></span></div>`).join('')}</div></section>
         <section class="monthly-list"><h4>월별 관람 · 지출</h4><div>${monthly.map(item => `<div class="monthly-editorial-row"><strong>${monthName(item.month)}</strong><span>${item.count}<small>회</small></span><b>${money(item.spend)}</b></div>`).join('') || '<p class="empty-editorial">선택한 공연이 없습니다.</p>'}</div></section>
         ${pageFooter('2/3')}
@@ -347,8 +352,31 @@
     ctx.font = '700 28px sans-serif';
     ctx.fillText('함께한 멤버 · 월별 기록', left, 355);
     drawLabel(ctx, '가장 많이 만난 멤버', left, 440, 20);
-    ctx.font = '800 42px sans-serif';
-    ctx.fillText(data.mostMet?.[1] ? `${data.mostMet[0]} · ${data.mostMet[1]}회` : '아직 기록이 없습니다', left, 505);
+    if (data.topMembers.length) {
+      const columns = data.topMembers.length, cellWidth = width / columns;
+      data.topMembers.forEach(([name, count], index) => {
+        const x = left + index * cellWidth;
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#231F20';
+        ctx.font = '800 23px sans-serif';
+        ctx.fillText(name, x + 10, 500);
+        ctx.textAlign = 'right';
+        ctx.font = '700 19px sans-serif';
+        ctx.fillText(`${count}회`, x + cellWidth - 10, 500);
+        if (index) {
+          ctx.strokeStyle = 'rgba(35,31,32,.18)';
+          ctx.beginPath();
+          ctx.moveTo(x, 470);
+          ctx.lineTo(x, 515);
+          ctx.stroke();
+        }
+      });
+    } else {
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#574A4E';
+      ctx.font = '500 20px sans-serif';
+      ctx.fillText('아직 기록이 없습니다', left, 500);
+    }
     drawRule(ctx, left, 535, width);
 
     ctx.font = '800 28px sans-serif';
@@ -475,13 +503,13 @@
     const monthly = getMonthlyTotals();
     const archive = getArchive();
     const travel = getTravelData();
-    const mostMet = [...members].sort((a, b) => b[1] - a[1])[0];
+    const topMembers = getTopMembers(members);
     const data = {
       rows,
       members,
       monthly,
       archive,
-      mostMet,
+      topMembers,
       total: document.getElementById('total')?.textContent?.trim() || '₩0',
       countryCount: getCountryCount(),
       travel,
@@ -513,7 +541,6 @@
     clearDownloadUrls();
     downloadBox.hidden = false;
     downloadBox.innerHTML = '<p>3장의 PNG 이미지를 준비하고 있습니다…</p>';
-    if (shareStatus) shareStatus.textContent = '';
     try {
       const blobs = await createImageBlobs();
       downloadBox.innerHTML = '<p>각 페이지를 눌러 PNG 파일로 저장할 수 있어요.</p>';
@@ -529,32 +556,6 @@
     } catch (error) {
       downloadBox.innerHTML = '<p>이미지를 만들지 못했습니다. 다시 시도해 주세요.</p>';
       console.error('영수증 이미지 생성 실패:', error);
-    }
-  }
-
-  async function shareImages() {
-    if (!shareStatus) return;
-    if (!navigator.share || !navigator.canShare || typeof File === 'undefined') {
-      shareStatus.textContent = '이 브라우저는 이미지 공유를 지원하지 않습니다. 이미지 3장 저장을 이용해 주세요.';
-      return;
-    }
-    shareStatus.textContent = '이미지 3장을 준비하고 있습니다…';
-    try {
-      const blobs = await createImageBlobs();
-      const files = blobs.map((blob, index) => new File([blob], `carat-memory-2026-${index + 1}.png`, {type: 'image/png'}));
-      if (!navigator.canShare({files})) {
-        shareStatus.textContent = '이 브라우저는 이미지 공유를 지원하지 않습니다. 이미지 3장 저장을 이용해 주세요.';
-        return;
-      }
-      await navigator.share({title: 'CARAT MEMORY · 2026', text: '2026년 공연 리캡', files});
-      shareStatus.textContent = '이미지 3장을 공유했습니다.';
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        shareStatus.textContent = '이미지 공유를 취소했습니다.';
-        return;
-      }
-      shareStatus.textContent = '이미지를 공유하지 못했습니다. 다시 시도해 주세요.';
-      console.error('영수증 이미지 공유 실패:', error);
     }
   }
 
@@ -575,7 +576,6 @@
     }
   });
   saveButton?.addEventListener('click', downloadImages);
-  shareButton?.addEventListener('click', shareImages);
   renderHighlights();
   renderMonthlySummary();
   renderPages();
